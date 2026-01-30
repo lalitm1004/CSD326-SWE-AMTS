@@ -2,15 +2,17 @@
   paper: "a4",
   
   header: context {
-    // Check if we are on the first physical page
-    let page-num = counter(page).at(here()).first()
-    if page-num > 1 [
-      #set text(10pt)
-      *SRS document for Auditorium Management and Ticketing System*
-      #h(1fr) *#counter(page).display("1")*
-    ]
-
-  },
+  let page-num = counter(page).at(here()).first()
+  
+  set text(10pt)
+  if page-num > 1 [
+    *SRS document for Auditorium Management and Ticketing System*
+  ]
+  
+  h(1fr) 
+  
+  [*#counter(page).display("1")*]
+},
   
   footer: [
     #set text(10pt)
@@ -48,7 +50,7 @@
 
 /// Table of contents
 #context [
-  #text(22pt, weight: "bold")[Table of Contents]
+  #text(22pt, weight: "bold")[= Table of Contents]
   #v(1em)
 
   #show outline.entry: it => {
