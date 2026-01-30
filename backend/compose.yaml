@@ -1,11 +1,17 @@
 services:
-  db:
+  postgres:
     image: postgres
     restart: always
     shm_size: 1gb
     ports:
-      - 5432:5432
+      - "5432:5432"
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: example
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro
+
+volumes:
+  postgres_data:
