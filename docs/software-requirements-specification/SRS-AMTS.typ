@@ -22,6 +22,7 @@
   numbering: "1"
 )
 
+/// Front Page
 #context [
   #set align(right)
   #v(2em)
@@ -41,9 +42,32 @@
     Rachit Kumar \
     Sonali Verma \
   ]
+
+  #pagebreak()
 ]
 
-#pagebreak()
+/// Table of contents
+#context [
+  #text(22pt, weight: "bold")[Table of Contents]
+  #v(1em)
+
+  #show outline.entry: it => {
+    if it.level == 1 {
+      strong(it)
+    } else {
+      it
+    }
+  }
+
+  // fill with dots
+  #show outline.entry: set outline.entry(
+    fill: repeat([.#h(0.1em)])
+  )
+
+  #outline(title: none)
+  #pagebreak()
+]
+
 
 = 1. Introduction
 
