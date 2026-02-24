@@ -88,10 +88,10 @@
   #pagebreak()
 ]
 
-#context [
+#align(center + horizon)[
   #image("output/use-case-diagram-transparent.png", width: 100%)
-  #pagebreak()
 ]
+#pagebreak()
 
 // ═══════════════════════════════════════════════════════════════
 //  UC1 - Register Account
