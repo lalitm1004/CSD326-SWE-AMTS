@@ -7,21 +7,24 @@ flowchart LR
 %% ══════════════════════════════════════
 %% LEFT ACTORS (consumers)
 %% ══════════════════════════════════════
-    UnregUser["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Unregistered User</span></div>"]
-    RegUser["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Registered User</span></div>"]
     Spectator["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Spectator</span></div>"]
+    RegUser["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Registered User</span></div>"]
+    UnregUser["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Unregistered User</span></div>"]
 
 %% Left-side inheritance
-    UnregUser -.->|"inherits"| RegUser
-    RegUser -.->|"inherits"| Spectator
+    %% UnregUser -->|"inherits"| RegUser
+    %% RegUser -->|"inherits"| Spectator
+    RegUser -->|"inherits"| UnregUser
+    %% Spectator -->|"inherits"| RegUser
 
 %% Left actor → use case associations
-    UnregUser --- UC1
-    UnregUser --- UC5
+    Spectator --- UC9
     Spectator --- UC10
     Spectator --- UC11
     Spectator --- UC12
-    Spectator --- UC13
+    UnregUser --- UC1
+    UnregUser --- UC5
+    RegUser --- UC2
 
 %% ══════════════════════════════════════
 %% SYSTEM BOUNDARY (center)
@@ -40,33 +43,33 @@ flowchart LR
             UC5(["UC5: View Show Details"])
             UC7(["UC7: Configure Show Details"])
             UC6(["UC6: Schedule Show"])
-            UC9(["UC9: Allocate VIP / Comp. Seats"])
+            UC8(["UC8: Allocate VIP / Comp. Seats"])
         end
 
         subgraph TICKET ["Ticket Sales"]
-            UC10(["UC10: Purchase Ticket Online"])
-            UC11(["UC11: Purchase Coupon"])
-            UC12(["UC12: Purchase via Agent"])
-            UC13(["UC13: Cancel Ticket"])
+            UC9(["UC9: Purchase Ticket Online"])
+            UC10(["UC10: Purchase Coupon"])
+            UC11(["UC11: Purchase via Agent"])
+            UC12(["UC12: Cancel Ticket"])
         end
 
         subgraph FINANCE ["Financial Management"]
-            UC14(["UC14: View Sales Records"])
-            UC15(["UC15: Manage Expense Logs"])
+            UC13(["UC13: View Sales Records"])
+            UC14(["UC14: Manage Expense Logs"])
         end
 
         %% ──────────────────────────────
         %% INCLUDE relationships
         %% ──────────────────────────────
+        UC14 -. "«include»" .-> UC13
         UC3 -. "«include»" .-> UC2
         UC4 -. "«include»" .-> UC2
-        UC15 -. "«include»" .-> UC14
 
         %% ──────────────────────────────
         %% EXTEND relationships
         %% ──────────────────────────────
-        UC11 -. "«extend»" .-> UC10
-        UC9 -. "«extend»" .-> UC7
+        UC10 -. "«extend»" .-> UC9
+        UC8 -. "«extend»" .-> UC7
     end
 
 %% ══════════════════════════════════════
@@ -79,8 +82,8 @@ flowchart LR
     FinClerk["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Financial Clerk</span></div>"]
 
 %% Use case → right actor associations
-    UC14 --- SalesAgent
-    UC12 --- SalesAgent
+    UC13 --- SalesAgent
+    UC11 --- SalesAgent
 
     UC7 --- ShowManager
     UC6 --- ShowManager
@@ -89,10 +92,10 @@ flowchart LR
     UC3 --- AudSec
 
     UC4 --- President
-    UC14 --- President
+    UC13 --- President
 
+    UC13 --- FinClerk
     UC14 --- FinClerk
-    UC15 --- FinClerk
 
 
 
@@ -103,7 +106,7 @@ flowchart LR
     classDef usecase fill:#BBDEFB,stroke:#1565C0,stroke-width:1.5px,color:#0D47A1
 
     class UnregUser,RegUser,Spectator,SalesAgent,ShowManager,FinClerk,AudSec,President actor
-    class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC9,UC10,UC11,UC12,UC13,UC14,UC15 usecase
+    class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC8,UC9,UC10,UC11,UC12,UC13,UC14 usecase
 
     style AMTS fill:#F5F5F5,stroke:#424242,stroke-width:2.5px,color:#212121
     style AUTH fill:#EDE7F6,stroke:#5E35B1,stroke-width:1.5px,color:#311B92
