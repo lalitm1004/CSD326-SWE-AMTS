@@ -1,0 +1,117 @@
+---
+config:
+  theme: default
+---
+flowchart LR
+
+%% ══════════════════════════════════════
+%% LEFT ACTORS (consumers)
+%% ══════════════════════════════════════
+    UnregUser["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Unregistered User</span></div>"]
+    RegUser["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Registered User</span></div>"]
+    Spectator["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Spectator</span></div>"]
+
+%% Left-side inheritance
+    UnregUser -.->|"inherits"| RegUser
+    RegUser -.->|"inherits"| Spectator
+
+%% Left actor → use case associations
+    UnregUser --- UC1
+    UnregUser --- UC5
+    Spectator --- UC10
+    Spectator --- UC11
+    Spectator --- UC12
+    Spectator --- UC13
+
+%% ══════════════════════════════════════
+%% SYSTEM BOUNDARY (center)
+%% ══════════════════════════════════════
+    subgraph AMTS ["Auditorium Management and Ticketing System"]
+        direction TB
+
+        subgraph AUTH ["Account and Role Management"]
+            UC1(["UC1: Register Account"])
+            UC2(["UC2: Login"])
+            UC3(["UC3: Assign / Revoke Roles"])
+            UC4(["UC4: Assign Secretary Role"])
+        end
+
+        subgraph SHOW ["Show Management"]
+            UC5(["UC5: View Show Details"])
+            UC6(["UC6: Schedule Show"])
+            UC7(["UC7: Configure Show Details"])
+            UC8(["UC8: Set Seat Pricing"])
+            UC9(["UC9: Allocate VIP / Comp. Seats"])
+        end
+
+        subgraph TICKET ["Ticket Sales"]
+            UC10(["UC10: Purchase Ticket Online"])
+            UC11(["UC11: Purchase Coupon"])
+            UC12(["UC12: Purchase via Agent"])
+            UC13(["UC13: Cancel Ticket"])
+        end
+
+        subgraph FINANCE ["Financial Management"]
+            UC14(["UC14: View Sales Records"])
+            UC15(["UC15: Manage Expense Logs"])
+        end
+
+        %% ──────────────────────────────
+        %% INCLUDE relationships
+        %% ──────────────────────────────
+        UC3 -- "«include»" --> UC2
+        UC4 -- "«include»" --> UC2
+
+        %% ──────────────────────────────
+        %% EXTEND relationships
+        %% ──────────────────────────────
+        UC11 -. "«extend»" .-> UC10
+        UC12 -. "«extend»" .-> UC10
+        UC8 -. "«extend»" .-> UC7
+        UC9 -. "«extend»" .-> UC7
+        UC15 -. "«extend»" .-> UC14
+    end
+
+%% ══════════════════════════════════════
+%% RIGHT ACTORS (staff / admin)
+%% ══════════════════════════════════════
+    SalesAgent["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Sales Agent</span></div>"]
+    ShowManager["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Show Manager</span></div>"]
+    AudSec["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Auditorium Secretary</span></div>"]
+    President["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>President</span></div>"]
+    FinClerk["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Financial Clerk</span></div>"]
+
+%% Use case → right actor associations
+    UC12 --- SalesAgent
+    UC14 --- SalesAgent
+
+    UC6 --- ShowManager
+    UC7 --- ShowManager
+    UC8 --- ShowManager
+    UC9 --- ShowManager
+
+    UC3 --- AudSec
+    UC6 --- AudSec
+
+    UC4 --- President
+    UC14 --- President
+
+    UC14 --- FinClerk
+    UC15 --- FinClerk
+
+
+
+%% ══════════════════════════════════════
+%% STYLING
+%% ══════════════════════════════════════
+    classDef actor fill:#DCEDC8,stroke:#33691E,stroke-width:2px,color:#1B5E20,font-weight:bold
+    classDef usecase fill:#BBDEFB,stroke:#1565C0,stroke-width:1.5px,color:#0D47A1
+
+    class UnregUser,RegUser,Spectator,SalesAgent,ShowManager,FinClerk,AudSec,President actor
+    class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC9,UC10,UC11,UC12,UC13,UC14,UC15 usecase
+
+    style AMTS fill:#F5F5F5,stroke:#424242,stroke-width:2.5px,color:#212121
+    style AUTH fill:#EDE7F6,stroke:#5E35B1,stroke-width:1.5px,color:#311B92
+    style SHOW fill:#FFF3E0,stroke:#E65100,stroke-width:1.5px,color:#BF360C
+    style TICKET fill:#E0F2F1,stroke:#00695C,stroke-width:1.5px,color:#004D40
+    style FINANCE fill:#FFF9C4,stroke:#F9A825,stroke-width:1.5px,color:#F57F17
