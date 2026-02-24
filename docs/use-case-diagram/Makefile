@@ -1,12 +1,13 @@
 SRC    := use-case-diagram.mmd
 NAME   := use-case-diagram
 MMDC   := mmdc
+OUTDIR := output
 
 # Output files
-SVG_WHITE := $(NAME).svg
-SVG_TRANS := $(NAME)-transparent.svg
-PNG_WHITE := $(NAME).png
-PNG_TRANS := $(NAME)-transparent.png
+SVG_WHITE := $(OUTDIR)/$(NAME).svg
+SVG_TRANS := $(OUTDIR)/$(NAME)-transparent.svg
+PNG_WHITE := $(OUTDIR)/$(NAME).png
+PNG_TRANS := $(OUTDIR)/$(NAME)-transparent.png
 
 .PHONY: all svg png clean
 
@@ -16,17 +17,20 @@ svg: $(SVG_WHITE) $(SVG_TRANS)
 
 png: $(PNG_WHITE) $(PNG_TRANS)
 
-$(SVG_WHITE): $(SRC)
+$(OUTDIR):
+	mkdir -p $(OUTDIR)
+
+$(SVG_WHITE): $(SRC) | $(OUTDIR)
 	$(MMDC) -i $< -o $@ -b white
 
-$(SVG_TRANS): $(SRC)
+$(SVG_TRANS): $(SRC) | $(OUTDIR)
 	$(MMDC) -i $< -o $@ -b transparent
 
-$(PNG_WHITE): $(SRC)
+$(PNG_WHITE): $(SRC) | $(OUTDIR)
 	$(MMDC) -i $< -o $@ -b white
 
-$(PNG_TRANS): $(SRC)
+$(PNG_TRANS): $(SRC) | $(OUTDIR)
 	$(MMDC) -i $< -o $@ -b transparent
 
 clean:
-	rm -f $(SVG_WHITE) $(SVG_TRANS) $(PNG_WHITE) $(PNG_TRANS)
+	rm -rf $(OUTDIR)

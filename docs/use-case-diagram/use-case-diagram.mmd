@@ -38,9 +38,8 @@ flowchart LR
 
         subgraph SHOW ["Show Management"]
             UC5(["UC5: View Show Details"])
-            UC6(["UC6: Schedule Show"])
             UC7(["UC7: Configure Show Details"])
-            UC8(["UC8: Set Seat Pricing"])
+            UC6(["UC6: Schedule Show"])
             UC9(["UC9: Allocate VIP / Comp. Seats"])
         end
 
@@ -59,17 +58,15 @@ flowchart LR
         %% ──────────────────────────────
         %% INCLUDE relationships
         %% ──────────────────────────────
-        UC3 -- "«include»" --> UC2
-        UC4 -- "«include»" --> UC2
+        UC3 -. "«include»" .-> UC2
+        UC4 -. "«include»" .-> UC2
+        UC15 -. "«include»" .-> UC14
 
         %% ──────────────────────────────
         %% EXTEND relationships
         %% ──────────────────────────────
         UC11 -. "«extend»" .-> UC10
-        UC12 -. "«extend»" .-> UC10
-        UC8 -. "«extend»" .-> UC7
         UC9 -. "«extend»" .-> UC7
-        UC15 -. "«extend»" .-> UC14
     end
 
 %% ══════════════════════════════════════
@@ -82,16 +79,14 @@ flowchart LR
     FinClerk["<div style='display:flex;align-items:center;gap:6px'><img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVzZXItaWNvbiBsdWNpZGUtdXNlciI+PHBhdGggZD0iTTE5IDIxdi0yYTQgNCAwIDAgMC00LTRIOWE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiLz48L3N2Zz4=' width='20' height='20' /><span>Financial Clerk</span></div>"]
 
 %% Use case → right actor associations
-    UC12 --- SalesAgent
     UC14 --- SalesAgent
+    UC12 --- SalesAgent
 
-    UC6 --- ShowManager
     UC7 --- ShowManager
-    UC8 --- ShowManager
-    UC9 --- ShowManager
+    UC6 --- ShowManager
 
-    UC3 --- AudSec
     UC6 --- AudSec
+    UC3 --- AudSec
 
     UC4 --- President
     UC14 --- President
