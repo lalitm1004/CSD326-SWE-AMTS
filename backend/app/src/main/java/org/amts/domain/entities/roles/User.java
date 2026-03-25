@@ -1,4 +1,4 @@
-package com.amts.roles;
+package org.amts.domain.entities.roles;
 
 import java.time.LocalDateTime;
 import java.util.EnumSet;

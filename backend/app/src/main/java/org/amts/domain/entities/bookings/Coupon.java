@@ -1,4 +1,4 @@
-package com.amts.bookings;
+package org.amts.domain.entities.bookings;
 
 import java.util.UUID;
 
@@ -13,6 +13,11 @@ public class Coupon {
     }
 
     // getters
-    public UUID getShowId() { return showId; }
-    public UUID getUserId() { return userId; }
+    public UUID getShowId() {
+        return showId;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
 }
