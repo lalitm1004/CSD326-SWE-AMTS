@@ -9,13 +9,11 @@ datasource db {
 
 // -------------------- Permissions & Groups START
 
-model Permission {
-  id     String                      @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  value  String                      @id
-  ///
-  groups GroupPermissionAssignment[]
-
-  @@map("permission")
+enum AccessTier {
+  NONE
+  VIEW
+  CREATE
+  EDIT
 }
 
 enum GroupType {
@@ -29,35 +27,34 @@ enum GroupType {
 }
 
 model Group {
-  id          String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  type        GroupType                   @unique
+  type        GroupType             @id
   description String?
   ///
-  permissions GroupPermissionAssignment[]
-  user        GroupUserAssignment[]
+  features    GroupFeatureAccess[]
+  users       GroupUserAssignment[]
 
   @@map("group")
 }
 
-model GroupPermissionAssignment {
-  groupId      String     @map("group_id") @db.Uuid
-  permissionId String     @map("permission_id")
+model GroupFeatureAccess {
+  groupType GroupType  @map("group_type")
+  feature   String
+  access    AccessTier
   ///
-  group        Group      @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: Restrict)
-  permission   Permission @relation(fields: [permissionId], references: [value], onDelete: Restrict, onUpdate: Restrict)
+  group     Group      @relation(fields: [groupType], references: [type], onDelete: Cascade, onUpdate: Restrict)
 
-  @@id([permissionId, groupId])
-  @@map("group_permission_assignment")
+  @@id([groupType, feature])
+  @@map("group_feature_access")
 }
 
 model GroupUserAssignment {
-  groupId String      @map("group_id") @db.Uuid
-  userId  String      @map("user_id") @db.Uuid
+  group_type GroupType   @map("group_type")
+  userId     String      @map("user_id") @db.Uuid
   ///
-  group   Group       @relation(fields: [groupId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  user    UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  group      Group       @relation(fields: [group_type], references: [type], onDelete: Restrict, onUpdate: Restrict)
+  user       UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Restrict)
 
-  @@id([groupId, userId])
+  @@id([group_type, userId])
   @@map("group_user_assignment")
 }
 
