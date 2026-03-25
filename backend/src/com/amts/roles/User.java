@@ -1,4 +1,4 @@
-package com.amts.roles
+package com.amts.roles;
 
 import java.time.LocalDateTime;
 import java.util.EnumSet;
@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public abstract class User {
-       
+
     private UUID id;
     private String email;
     private String hashedPassword;
@@ -14,11 +14,10 @@ public abstract class User {
     private Set<Role> roles;
 
     public User(
-        UUID id,
-        String email,
-        String hashedPassword,
-        LocalDateTime createdAt
-    ) {
+            UUID id,
+            String email,
+            String hashedPassword,
+            LocalDateTime createdAt) {
         this.id = id;
         this.email = email;
         this.hashedPassword = hashedPassword;
@@ -39,13 +38,32 @@ public abstract class User {
     }
 
     // getters
-    public UUID getId() { return id; }
-    public String getEmail() { return email; }
-    public String getHashedPassword() { return hashedPassword; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public Set<Role> getRoles() { return Set.copyOf(roles); }
+    public UUID getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getHashedPassword() {
+        return hashedPassword;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public Set<Role> getRoles() {
+        return Set.copyOf(roles);
+    }
 
     // setters
-    public void setEmail(String email) { this.email = email; }
-    public void setHashedPassword(String hashedPassword) { this.hashedPassword = hashedPassword; }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setHashedPassword(String hashedPassword) {
+        this.hashedPassword = hashedPassword;
+    }
 }

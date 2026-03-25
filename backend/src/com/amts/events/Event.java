@@ -1,4 +1,4 @@
-package com.amts.events
+package com.amts.events;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-com.amts.events;
+package com.amts.events;
 
 import java.util.UUID;
 
