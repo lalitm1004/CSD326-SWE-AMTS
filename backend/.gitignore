@@ -1,5 +1,14 @@
-.gradle
-build
-.kotlin
-bin
-gradle
+# Gradle
+.gradle/
+**/build/
+!gradle
+
+# Kotlin
+.kotlin/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Misc
+app/bin/
