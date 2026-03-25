@@ -12,3 +12,8 @@ Thumbs.db
 
 # Misc
 app/bin/
+
+# Environment Variables
+.env
+.env.*
+!.env.example
