@@ -51,6 +51,9 @@ CREATE OR REPLACE FUNCTION fn_on_auth_new_user()
             email = COALESCE(NEW.email, '')
         WHERE id = NEW.id;
 
+        INSERT INTO public.user_role_assignment (user_id, role)
+        VALUES (NEW.id, 'SPECTATOR');
+
         PERFORM public.fn_update_user_custom_claims(NEW.id);
 
         RETURN NEW;
