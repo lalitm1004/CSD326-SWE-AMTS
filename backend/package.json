@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "db:start": "npx supabase start",
+    "db:stop": "npx supabase stop",
+    "db:reset": "npx supabase db reset"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "supabase": "^2.84.4",
+    "tsx": "^4.21.0"
+  }
+}
