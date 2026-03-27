@@ -1,4 +1,4 @@
-package org.amts.domain.entities.roles;
+package org.amts.domain.entities.user;
 
 public enum Role {
     ROOT,

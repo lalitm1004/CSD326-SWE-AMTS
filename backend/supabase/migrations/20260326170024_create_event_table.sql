@@ -6,11 +6,12 @@ CREATE TABLE "event" (
     "description" TEXT,
     "thumbnail_url" TEXT,
     
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT now(),
     -- Updated via transactions
-    "start_timestamp" TIMESTAMP(3),
-    "end_timestamp" TIMESTAMP(3),
+    "starting_at" TIMESTAMP(3),
+    "ending_at" TIMESTAMP(3),
 
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT now(),
+    
     CONSTRAINT "event_pkey" PRIMARY KEY ("id"),
 
     CONSTRAINT "event_created_by_user_id_fkey"
