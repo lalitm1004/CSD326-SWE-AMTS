@@ -4,6 +4,7 @@ CREATE TABLE "ticket" (
     "show_id" UUID,
     "seat_id" UUID,
 
+    "code" TEXT NOT NULL,
     "is_refunded" BOOLEAN DEFAULT false,
 
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT now(),
@@ -26,5 +27,8 @@ CREATE TABLE "ticket" (
         ON DELETE SET NULL,
 
     CONSTRAINT "ticket_show_id_seat_id_unique"
-        UNIQUE ("show_id", "seat_id")
+        UNIQUE ("show_id", "seat_id"),
+
+    CONSTRAINT "ticket_code_unique"
+        UNIQUE ("code")
 );

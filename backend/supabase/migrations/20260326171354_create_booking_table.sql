@@ -8,7 +8,10 @@ CREATE TABLE "booking" (
     "id" UUID NOT NULL,
     "show_id" UUID,
 
+    "code" TEXT NOT NULL,
     "type" "BookingTypeEnum" NOT NULL,
+    -- Updated via transactions
+    "amount" DOUBLE PRECISION,
 
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT now(),
 
@@ -17,7 +20,10 @@ CREATE TABLE "booking" (
     CONSTRAINT "booking_show_id_fkey"
         FOREIGN KEY ("show_id")
         REFERENCES "show"("id")
-        ON DELETE SET NULL
+        ON DELETE SET NULL,
+    
+    CONSTRAINT "booking_code_unique"
+        UNIQUE ("code")
 );
 
 CREATE TABLE "complementary_booking" (

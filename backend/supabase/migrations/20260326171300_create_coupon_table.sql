@@ -19,5 +19,8 @@ CREATE TABLE "coupon" (
         REFERENCES "user_profile"("id") ON DELETE SET NULL,
 
     CONSTRAINT "coupon_show_id_user_id_unique"
-        UNIQUE ("show_id", "spectator_user_id")
+        UNIQUE ("show_id", "spectator_user_id"),
+    
+    CONSTRAINT "coupon_code_unqique"
+        UNIQUE ("code")
 );
