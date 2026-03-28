@@ -1,8 +1,10 @@
-package org.amts.adapters.persistence;
+package org.amts.adapters.usecases.user;
 
-import org.amts.application.usecases.user.UserPersistence;
+import org.amts.application.exceptions.user.UserNotFoundException;
+import org.amts.application.usecases.user.UserPersistenceUseCase;
 import org.amts.domain.entities.user.Role;
 import org.amts.domain.entities.user.User;
+import org.amts.jooq.enums.Roleenum;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -15,7 +17,7 @@ import java.util.stream.Collectors;
 import static org.amts.jooq.Tables.USER_PROFILE;
 import static org.amts.jooq.Tables.USER_ROLE_ASSIGNMENT;
 
-public class UserPersistenceImpl implements UserPersistence {
+public class UserPersistenceImpl implements UserPersistenceUseCase {
 
     private final DSLContext dsl;
 
@@ -24,7 +26,7 @@ public class UserPersistenceImpl implements UserPersistence {
     }
 
     @Override
-    public Optional<User> getUserById(UUID id) {
+    public Optional<User> getUserById(UUID userId) {
         var result = dsl.select(
                 USER_PROFILE.ID,
                 USER_PROFILE.EMAIL,
@@ -32,7 +34,7 @@ public class UserPersistenceImpl implements UserPersistence {
                 USER_ROLE_ASSIGNMENT.ROLE)
                 .from(USER_PROFILE)
                 .leftJoin(USER_ROLE_ASSIGNMENT).on(USER_PROFILE.ID.eq(USER_ROLE_ASSIGNMENT.USER_ID))
-                .where(USER_PROFILE.ID.eq(id))
+                .where(USER_PROFILE.ID.eq(userId))
                 .fetch();
 
         return mapToUser(result);
@@ -51,6 +53,53 @@ public class UserPersistenceImpl implements UserPersistence {
                 .fetch();
 
         return mapToUser(result);
+    }
+
+    @Override
+    public void updateUserEmail(UUID id, String newEmail) throws UserNotFoundException {
+        int updated = dsl.update(USER_PROFILE)
+                .set(USER_PROFILE.EMAIL, newEmail)
+                .where(USER_PROFILE.ID.eq(id))
+                .execute();
+
+        if (updated == 0) {
+            throw new UserNotFoundException(id);
+        }
+    }
+
+    @Override
+    public void updateUserRoles(UUID userId, Set<Role> newRoles) throws UserNotFoundException {
+        dsl.transaction(configuration -> {
+            var ctx = configuration.dsl();
+
+            boolean exists = ctx.fetchExists(
+                    ctx.selectOne()
+                            .from(USER_PROFILE)
+                            .where(USER_PROFILE.ID.eq(userId)));
+
+            if (!exists) {
+                throw new UserNotFoundException(userId);
+            }
+
+            Set<Role> roles = (newRoles == null || newRoles.isEmpty())
+                    ? Set.of(Role.SPECTATOR)
+                    : Set.copyOf(newRoles);
+
+            // Delete existing roles
+            ctx.deleteFrom(USER_ROLE_ASSIGNMENT)
+                    .where(USER_ROLE_ASSIGNMENT.USER_ID.eq(userId))
+                    .execute();
+
+            // Insert new roles
+            var queries = roles.stream()
+                    .map((Role role) -> (org.jooq.Query) ctx.insertInto(USER_ROLE_ASSIGNMENT)
+                            .set(USER_ROLE_ASSIGNMENT.USER_ID, userId)
+                            .set(USER_ROLE_ASSIGNMENT.ROLE,
+                                    Roleenum.valueOf(role.name())))
+                    .toArray(org.jooq.Query[]::new);
+
+            ctx.batch(queries).execute();
+        });
     }
 
     private Optional<User> mapToUser(Result<? extends Record> result) {

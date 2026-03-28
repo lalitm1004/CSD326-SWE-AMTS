@@ -2,6 +2,7 @@ package org.amts.adapters.http.controllers;
 
 import org.amts.adapters.http.dto.UserDto;
 import org.amts.application.usecases.user.UserUseCases;
+import org.amts.domain.entities.user.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +27,7 @@ public class UserController {
             @RequestParam(required = false) UUID id,
             @RequestParam(required = false) String email) {
 
-        Optional<org.amts.domain.entities.user.User> user = Optional.empty();
+        Optional<User> user = Optional.empty();
 
         if (id != null) {
             user = userUseCases.getUserById(id);

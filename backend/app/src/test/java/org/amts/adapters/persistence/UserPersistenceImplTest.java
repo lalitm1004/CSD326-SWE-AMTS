@@ -1,5 +1,6 @@
 package org.amts.adapters.persistence;
 
+import org.amts.adapters.usecases.user.UserPersistenceImpl;
 import org.amts.domain.entities.user.Role;
 import org.amts.domain.entities.user.User;
 import org.amts.jooq.enums.Roleenum;
@@ -34,37 +35,34 @@ class UserPersistenceImplTest {
             @Override
             public MockResult[] execute(MockExecuteContext ctx) {
                 DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
-                
+
                 var resultType = dsl.newResult(
                         USER_PROFILE.ID,
                         USER_PROFILE.EMAIL,
                         USER_PROFILE.CREATED_AT,
-                        USER_ROLE_ASSIGNMENT.ROLE
-                );
-                
+                        USER_ROLE_ASSIGNMENT.ROLE);
+
                 var record1 = dsl.newRecord(
                         USER_PROFILE.ID,
                         USER_PROFILE.EMAIL,
                         USER_PROFILE.CREATED_AT,
-                        USER_ROLE_ASSIGNMENT.ROLE
-                );
+                        USER_ROLE_ASSIGNMENT.ROLE);
                 record1.values(expectedId, expectedEmail, expectedTime, Roleenum.SHOW_MANAGER);
-                
+
                 var record2 = dsl.newRecord(
                         USER_PROFILE.ID,
                         USER_PROFILE.EMAIL,
                         USER_PROFILE.CREATED_AT,
-                        USER_ROLE_ASSIGNMENT.ROLE
-                );
+                        USER_ROLE_ASSIGNMENT.ROLE);
                 record2.values(expectedId, expectedEmail, expectedTime, Roleenum.SPECTATOR);
-                
+
                 resultType.add(record1);
                 resultType.add(record2);
-                
-                return new MockResult[]{new MockResult(2, resultType)};
+
+                return new MockResult[] { new MockResult(2, resultType) };
             }
         };
-        
+
         MockConnection connection = new MockConnection(provider);
         DSLContext mockDsl = DSL.using(connection, SQLDialect.POSTGRES);
         UserPersistenceImpl persistence = new UserPersistenceImpl(mockDsl);
@@ -89,9 +87,8 @@ class UserPersistenceImplTest {
                         USER_PROFILE.ID,
                         USER_PROFILE.EMAIL,
                         USER_PROFILE.CREATED_AT,
-                        USER_ROLE_ASSIGNMENT.ROLE
-                ); 
-                return new MockResult[]{new MockResult(0, emptyResult)};
+                        USER_ROLE_ASSIGNMENT.ROLE);
+                return new MockResult[] { new MockResult(0, emptyResult) };
             }
         };
 
@@ -119,21 +116,20 @@ class UserPersistenceImplTest {
                         USER_PROFILE.ID,
                         USER_PROFILE.EMAIL,
                         USER_PROFILE.CREATED_AT,
-                        USER_ROLE_ASSIGNMENT.ROLE
-                );
+                        USER_ROLE_ASSIGNMENT.ROLE);
 
                 var record1 = dsl.newRecord(
                         USER_PROFILE.ID,
                         USER_PROFILE.EMAIL,
                         USER_PROFILE.CREATED_AT,
-                        USER_ROLE_ASSIGNMENT.ROLE
-                );
-                // What if a user has no roles in the DB? Our mapToUser logic defaults to SPECTATOR
+                        USER_ROLE_ASSIGNMENT.ROLE);
+                // What if a user has no roles in the DB? Our mapToUser logic defaults to
+                // SPECTATOR
                 record1.values(expectedId, expectedEmail, expectedTime, null);
 
                 resultType.add(record1);
 
-                return new MockResult[]{new MockResult(1, resultType)};
+                return new MockResult[] { new MockResult(1, resultType) };
             }
         };
 
