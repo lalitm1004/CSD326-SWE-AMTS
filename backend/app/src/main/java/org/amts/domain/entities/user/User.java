@@ -46,6 +46,28 @@ public class User {
         return this.roles.contains(role);
     }
 
+    public boolean hasRolesAny(Role... roles) {
+        Objects.requireNonNull(roles, "Roles must not be null");
+
+        for (Role role : roles) {
+            if (this.roles.contains(role)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasRolesAll(Role... roles) {
+        Objects.requireNonNull(roles, "Roles must not be null");
+
+        for (Role role : roles) {
+            if (!this.roles.contains(role)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
