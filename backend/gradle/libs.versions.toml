@@ -4,7 +4,22 @@
 [versions]
 guava = "33.5.0-jre"
 junit-jupiter = "6.0.1"
+jooqVersion = "3.19.10"
+postgresql = "42.7.3"
+jooqPlugin = "9.0"
+spring-boot = "3.4.0"
+spring-dependency-management = "1.1.4"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+jooq-core = { module = "org.jooq:jooq", version.ref = "jooqVersion" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "spring-boot" }
+spring-boot-starter-jdbc = { module = "org.springframework.boot:spring-boot-starter-jdbc", version.ref = "spring-boot" }
+spring-boot-starter-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq", version.ref = "spring-boot" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
+
+[plugins]
+jooq = { id = "nu.studer.jooq", version.ref = "jooqPlugin" }
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
