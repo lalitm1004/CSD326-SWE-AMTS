@@ -1,11 +1,10 @@
-package org.amts.domain.entities.event;
+package org.amts.adapters.http.dto;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
 
 
-public class Event {
+public class EventDto {
 
     private final UUID id;
     private final UUID createdByUserId;
@@ -18,7 +17,7 @@ public class Event {
     private final LocalDateTime endingAt;
     private final LocalDateTime createdAt;
 
-    public Event(
+    public EventDto(
             UUID id,
             UUID createdByUserId,
             String name,
@@ -28,19 +27,14 @@ public class Event {
             LocalDateTime endingAt,
             LocalDateTime createdAt) {
 
-        this.id = Objects.requireNonNull(id, "Event id must not be null");
-        this.createdByUserId = createdByUserId; // nullable — ON DELETE SET NULL in DB
-
-        Objects.requireNonNull(name, "Event name must not be null");
-        if (name.isBlank()) {
-            throw new IllegalArgumentException("Event name must not be blank");
-        }
+        this.id = id;
+        this.createdByUserId = createdByUserId;
         this.name = name;
         this.description = description;
         this.thumbnailUrl = thumbnailUrl;
         this.startingAt = startingAt;
         this.endingAt = endingAt;
-        this.createdAt = Objects.requireNonNull(createdAt, "Event createdAt must not be null");
+        this.createdAt = createdAt;
     }
 
     public UUID getId() {
@@ -73,25 +67,5 @@ public class Event {
 
     public LocalDateTime getEndingAt() {
         return endingAt;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        Event event = (Event) o;
-        return Objects.equals(id, event.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Event{id=" + id + ", name='" + name + "'}";
     }
 }
