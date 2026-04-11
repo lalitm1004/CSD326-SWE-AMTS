@@ -18,7 +18,9 @@ public class AuthorizationHelper {
         User user = userPersistence.getUserById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        if (requiredRoles.length > 0 && !user.hasRolesAny(requiredRoles)) {
+        if (requiredRoles.length > 0
+                && !user.hasRolesAny(Role.ROOT)
+                && !user.hasRolesAny(requiredRoles)) {
             throw new PermissionException("You do not have permission to perform this action.");
         }
 
