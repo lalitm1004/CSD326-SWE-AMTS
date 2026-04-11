@@ -1,6 +1,5 @@
 package org.amts.adapters.http.controllers;
 
-import org.amts.adapters.http.dto.UserDto;
 import org.amts.application.usecases.user.UserUseCases;
 import org.amts.domain.entities.user.User;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,7 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<UserDto> getUser(
+    public ResponseEntity<User> getUser(
             @RequestParam(required = false) UUID id,
             @RequestParam(required = false) String email) {
 
@@ -37,7 +36,7 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
 
-        return user.map(u -> ResponseEntity.ok(UserDto.from(u)))
+        return user.map(u -> ResponseEntity.ok(u))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
