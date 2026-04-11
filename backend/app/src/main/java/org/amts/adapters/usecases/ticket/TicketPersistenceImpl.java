@@ -1,4 +1,4 @@
-package org.amts.adapters.usecase.ticket;
+package org.amts.adapters.usecases.ticket;
 
 import java.util.List;
 import java.util.Optional;

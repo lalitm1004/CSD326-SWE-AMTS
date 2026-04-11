@@ -1,4 +1,4 @@
-package org.amts.adapters.usecase.ticket;
+package org.amts.adapters.usecases.ticket;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
