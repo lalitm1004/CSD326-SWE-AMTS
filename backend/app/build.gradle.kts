@@ -35,8 +35,20 @@ application {
     mainClass = "org.amts.App"
 }
 
+sourceSets {
+    main {
+        java {
+            srcDir("build/generated-src/jooq/main")
+        }
+    }
+}
+
 tasks.named<Test>("test") {
     useJUnitPlatform()
+    testLogging {
+        events("passed", "failed", "skipped")
+        showStandardStreams = false
+    }
 }
 
 jooq {
