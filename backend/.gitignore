@@ -13,6 +13,14 @@ Thumbs.db
 # Misc
 app/bin/
 
+# IDE - Eclipse/Gradle Eclipse plugin
+.project
+.classpath
+.settings/
+app/.project
+app/.classpath
+app/.settings/
+
 # Environment Variables
 .env
 .env.*

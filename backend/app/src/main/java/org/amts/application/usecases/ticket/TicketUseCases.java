@@ -59,4 +59,8 @@ public class TicketUseCases {
                 ticketIds
         );
     }
+
+    public List<Ticket> getTicketsByBookingId(UUID bookingId) {
+        return persistence.getTicketsByBookingId(bookingId);
+    }
 }
