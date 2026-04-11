@@ -5,12 +5,12 @@ import java.util.UUID;
 
 import org.amts.domain.entities.ticket.Ticket;
 
-public class TicketUseCases {
+public class TicketUseCase {
 
     private final TicketPersistenceUseCase persistence;
     private final TicketPurchaseUseCase purchaseUseCase;
 
-    public TicketUseCases(
+    public TicketUseCase(
             TicketPersistenceUseCase persistence,
             TicketPurchaseUseCase purchaseUseCase) {
 

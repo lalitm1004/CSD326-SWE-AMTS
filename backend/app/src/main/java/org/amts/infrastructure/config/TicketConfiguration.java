@@ -1,10 +1,11 @@
 package org.amts.infrastructure.config;
 
 import org.amts.adapters.usecases.ticket.TicketPersistenceImpl;
-import org.amts.adapters.usecases.ticket.TicketPurchaseUseCaseImpl;
+import org.amts.adapters.usecases.ticket.TicketPurchaseImpl;
 import org.amts.application.usecases.ticket.TicketPersistenceUseCase;
 import org.amts.application.usecases.ticket.TicketPurchaseUseCase;
-import org.amts.application.usecases.ticket.TicketUseCases;
+import org.amts.application.usecases.ticket.TicketUseCase;
+import org.amts.application.usecases.user.UserPersistenceUseCase;
 import org.jooq.DSLContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,14 +21,17 @@ public class TicketConfiguration {
     @Bean
     public TicketPurchaseUseCase ticketPurchaseUseCase(
             DSLContext dslContext,
-            TicketPersistenceUseCase ticketPersistence) {
-        return new TicketPurchaseUseCaseImpl(dslContext, ticketPersistence);
+            TicketPersistenceUseCase ticketPersistence,
+            UserPersistenceUseCase userPersistence
+    ) {
+        return new TicketPurchaseImpl(dslContext, ticketPersistence, userPersistence);
     }
 
     @Bean
-    public TicketUseCases ticketUseCases(
+    public TicketUseCase ticketUseCases(
             TicketPersistenceUseCase ticketPersistence,
-            TicketPurchaseUseCase ticketPurchase) {
-        return new TicketUseCases(ticketPersistence, ticketPurchase);
+            TicketPurchaseUseCase ticketPurchase
+    ) {
+        return new TicketUseCase(ticketPersistence, ticketPurchase);
     }
 }

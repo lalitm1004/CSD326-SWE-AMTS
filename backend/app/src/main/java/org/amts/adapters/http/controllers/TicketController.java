@@ -3,7 +3,7 @@ package org.amts.adapters.http.controllers;
 import java.util.List;
 import java.util.UUID;
 
-import org.amts.application.usecases.ticket.TicketUseCases;
+import org.amts.application.usecases.ticket.TicketUseCase;
 import org.amts.domain.entities.ticket.Ticket;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/ticket")
 public class TicketController {
 
-    private final TicketUseCases ticketUseCases;
+    private final TicketUseCase ticketUseCases;
 
-    public TicketController(TicketUseCases ticketUseCases) {
+    public TicketController(TicketUseCase ticketUseCases) {
         this.ticketUseCases = ticketUseCases;
     }
 
