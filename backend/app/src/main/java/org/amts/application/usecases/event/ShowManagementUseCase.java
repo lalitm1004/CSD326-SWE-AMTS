@@ -8,7 +8,19 @@ import java.util.UUID;
 import org.amts.domain.entities.event.Show;
 
 public interface ShowManagementUseCase {
-    void addShowtoEvent(UUID userId, Show show, UUID eventID);
+    void addShowToEvent(
+        UUID createdByUserId,
+        UUID eventId,
+        String name,
+        String description,
+        String thumbnailUrl,
+        LocalDateTime startingAt,
+        LocalDateTime endingAt,
+        double ordinarySeatPrice,
+        double balconySeatPrice,
+        int numOrdinarySeats,
+        int numBalconySeats
+    );
 
     void deleteShow(UUID userId, UUID showId);
 

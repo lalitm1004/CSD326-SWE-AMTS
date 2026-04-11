@@ -14,9 +14,7 @@ public class EventController {
 
     private final EventManagementUseCase eventPersistence;
 
-    public EventController(
-            EventManagementUseCase eventPersistence
-    ) {
+    public EventController(EventManagementUseCase eventPersistence) {
         this.eventPersistence = eventPersistence;
     }
 
@@ -25,6 +23,38 @@ public class EventController {
             String name,
             String description,
             String thumbnailUrl
+    ) {}
+
+    record DeleteEventRequest(
+            UUID userId,
+            UUID eventId
+    ) {}
+
+    record UpdateEventNameRequest(
+            UUID userId,
+            UUID eventId,
+            String newName
+    ) {}
+
+    record UpdateEventDescriptionRequest(
+            UUID userId,
+            UUID eventId,
+            String newDescription
+    ) {}
+
+    record UpdateEventThumbnailRequest(
+            UUID userId,
+            UUID eventId,
+            String newUrl
+    ) {}
+
+    record GetEventRequest(
+            UUID userId,
+            UUID eventId
+    ) {}
+
+    record GetAllEventsRequest(
+            UUID userId
     ) {}
 
     @PostMapping
@@ -39,59 +69,58 @@ public class EventController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteEvent(
-            @RequestParam UUID userId,
-            @RequestParam UUID eventId
-    ) {
-        eventPersistence.deleteEvent(userId, eventId);
+    public ResponseEntity<Void> deleteEvent(@RequestBody DeleteEventRequest request) {
+        eventPersistence.deleteEvent(
+                request.userId(),
+                request.eventId()
+        );
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/name")
-    public ResponseEntity<Void> updateEventName(
-            @RequestParam UUID userId,
-            @RequestParam UUID eventId,
-            @RequestParam String newName
-    ) {
-
-        eventPersistence.updateEventName(userId, eventId, newName);
+    public ResponseEntity<Void> updateEventName(@RequestBody UpdateEventNameRequest request) {
+        eventPersistence.updateEventName(
+                request.userId(),
+                request.eventId(),
+                request.newName()
+        );
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/description")
-    public ResponseEntity<Void> updateEventDescription(
-            @RequestParam UUID userId,
-            @RequestParam UUID eventId,
-            @RequestParam String newDescription
-    ) {
-        eventPersistence.updateEventDescription(userId, eventId, newDescription);
+    public ResponseEntity<Void> updateEventDescription(@RequestBody UpdateEventDescriptionRequest request) {
+        eventPersistence.updateEventDescription(
+                request.userId(),
+                request.eventId(),
+                request.newDescription()
+        );
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/thumbnail")
-    public ResponseEntity<Void> updateEventThumbnail(
-            @RequestParam UUID userId,
-            @RequestParam UUID eventId,
-            @RequestParam String newUrl
-    ) {
-        eventPersistence.updateEventThumbnail(userId, eventId, newUrl);
+    public ResponseEntity<Void> updateEventThumbnail(@RequestBody UpdateEventThumbnailRequest request) {
+        eventPersistence.updateEventThumbnail(
+                request.userId(),
+                request.eventId(),
+                request.newUrl()
+        );
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
-    public ResponseEntity<Event> getEventById(
-            @RequestParam UUID userId,
-            @RequestParam UUID eventId
-    ) {
-        return eventPersistence.getEventByID(userId, eventId)
-            .map(ResponseEntity::ok)
-            .orElseGet(() -> ResponseEntity.notFound().build());
+    @PostMapping("/get")
+    public ResponseEntity<Event> getEventById(@RequestBody GetEventRequest request) {
+        return eventPersistence.getEventByID(
+                request.userId(),
+                request.eventId()
+        )
+        .map(ResponseEntity::ok)
+        .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Event>> getAllEvents(
-            @RequestParam UUID userId
-    ) {
-        return ResponseEntity.ok(eventPersistence.getAllEvents(userId));
+    @PostMapping("/all")
+    public ResponseEntity<List<Event>> getAllEvents(@RequestBody GetAllEventsRequest request) {
+        return ResponseEntity.ok(
+                eventPersistence.getAllEvents(request.userId())
+        );
     }
 }

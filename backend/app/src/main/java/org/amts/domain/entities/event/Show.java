@@ -42,8 +42,8 @@ public class Show {
             LocalDateTime createdAt) {
 
         this.id = Objects.requireNonNull(id, "Show id must not be null");
-        this.createdByUserId = createdByUserId; // nullable — ON DELETE SET NULL in DB
-        this.eventId = eventId; // nullable — ON DELETE CASCADE but may be orphaned
+        this.createdByUserId = createdByUserId;
+        this.eventId = eventId;
 
         Objects.requireNonNull(name, "Show name must not be null");
         if (name.isBlank()) {

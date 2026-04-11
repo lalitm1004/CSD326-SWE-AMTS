@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.amts.application.exceptions.user.UserNotFoundException;
 import org.amts.domain.entities.event.Event;
-import org.amts.domain.entities.user.Role;
-import org.amts.domain.entities.user.User;
 import org.amts.application.usecases.event.EventManagementUseCase;
 import org.amts.application.usecases.event.rawinterfaces.EventPersistenceUseCase;
 import org.amts.application.usecases.user.UserPersistenceUseCase;
+
+import org.amts.adapters.usecases.AuthorizationHelper;
 
 public class EventManagementImpl implements EventManagementUseCase {
     private final EventPersistenceUseCase eventPersistence;
@@ -24,17 +23,6 @@ public class EventManagementImpl implements EventManagementUseCase {
         this.userPersistence = userPersistence;
     }
 
-    private User getAuthorizedUser(UUID userId) {
-        User user = userPersistence.getUserById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-
-        if (!user.hasRolesAny(Role.AUDITORIUM_SECRETARY, Role.SHOW_MANAGER)) {
-            throw new RuntimeException("Unauthorized");
-        }
-
-        return user;
-    }
-
     public void createEvent(
         UUID createdByUserId, 
         String name, 
@@ -42,7 +30,7 @@ public class EventManagementImpl implements EventManagementUseCase {
         String thumbnailUrl
     ) {
 
-        getAuthorizedUser(createdByUserId);
+        AuthorizationHelper.getAuthorizedUser(createdByUserId, userPersistence);
         eventPersistence.createEvent(
             createdByUserId,
             name,
@@ -52,12 +40,12 @@ public class EventManagementImpl implements EventManagementUseCase {
     }
 
     public void deleteEvent( UUID userId, UUID eventId) {
-        getAuthorizedUser(userId);
+       AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
         eventPersistence.deleteEvent(eventId);
     }
 
     public void updateEventName( UUID userId, UUID eventId, String newName) {
-        getAuthorizedUser(userId);
+        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
         eventPersistence.updateEventName(eventId, newName);
     }
 
@@ -66,23 +54,23 @@ public class EventManagementImpl implements EventManagementUseCase {
         UUID eventId,
         String newDescription
     ) {
-        getAuthorizedUser(userId);
+        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
         eventPersistence.updateEventDescription(eventId, newDescription);
     }
 
     public void updateEventThumbnail(UUID userId, UUID eventId, String newUrl) {
-        getAuthorizedUser(userId);
+        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
 
         eventPersistence.updateEventThumbnail(eventId, newUrl);
     }
 
     public Optional<Event> getEventByID(UUID userId, UUID eventId) {
-        getAuthorizedUser(userId);
+        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
         return eventPersistence.getEventByID(eventId);
     }
 
     public ArrayList<Event> getAllEvents(UUID userId) {
-        getAuthorizedUser(userId);
+        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
         return eventPersistence.getAllEvents();
     }
 }

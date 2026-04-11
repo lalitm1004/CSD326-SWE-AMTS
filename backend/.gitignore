@@ -20,3 +20,7 @@ app/bin/
 
 # Node
 node_modules
+
+# others
+.settings
+.vscode
