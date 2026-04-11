@@ -17,14 +17,14 @@ public class EventManagementImpl implements EventManagementUseCase {
 
     public EventManagementImpl(
             EventPersistenceUseCase eventPersistence,
-            UserPersistenceUseCase userPersistence
-    ) {
+            UserPersistenceUseCase userPersistence) {
         this.eventPersistence = eventPersistence;
         this.userPersistence = userPersistence;
     }
 
     public void createEvent(UUID createdByUserId, String name, String description, String thumbnailUrl) {
-        AuthorizationHelper.getAuthorizedUser(createdByUserId, userPersistence, Role.AUDITORIUM_SECRETARY, Role.SHOW_MANAGER);
+        AuthorizationHelper.getAuthorizedUser(createdByUserId, userPersistence, Role.AUDITORIUM_SECRETARY,
+                Role.SHOW_MANAGER);
         eventPersistence.createEvent(createdByUserId, name, description, thumbnailUrl);
     }
 
@@ -49,12 +49,10 @@ public class EventManagementImpl implements EventManagementUseCase {
     }
 
     public Optional<Event> getEventByID(UUID userId, UUID eventId) {
-        AuthorizationHelper.getAuthorizedUser(userId, userPersistence, Role.AUDITORIUM_SECRETARY, Role.SHOW_MANAGER);
         return eventPersistence.getEventByID(eventId);
     }
 
     public ArrayList<Event> getAllEvents(UUID userId) {
-        AuthorizationHelper.getAuthorizedUser(userId, userPersistence, Role.AUDITORIUM_SECRETARY, Role.SHOW_MANAGER);
         return eventPersistence.getAllEvents();
     }
 }

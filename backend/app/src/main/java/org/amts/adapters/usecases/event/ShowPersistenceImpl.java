@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import org.amts.application.usecases.event.rawinterfaces.ShowPersistenceUseCase;
 import org.amts.domain.entities.event.Show;
+import org.amts.domain.valueobjects.Money;
 import org.amts.jooq.tables.records.ShowRecord;
 import org.jooq.DSLContext;
 
@@ -17,6 +18,24 @@ public class ShowPersistenceImpl implements ShowPersistenceUseCase {
 
     public ShowPersistenceImpl(DSLContext dsl) {
         this.dsl = dsl;
+    }
+
+    private Show fromRecord(ShowRecord r) {
+        return new Show(
+                r.getId(),
+                r.getEventId(),
+                r.getCreatedByUserId(),
+                r.getName(),
+                r.getDescription(),
+                r.getThumbnailUrl(),
+                r.getStartingAt(),
+                r.getEndingAt(),
+                Money.of(r.getOrdinarySeatPrice()),
+                Money.of(r.getBalconySeatPrice()),
+                r.getNumOrdinarySeats(),
+                r.getNumBalconySeats(),
+                r.getCreatedAt()
+        );
     }
 
     @Override
@@ -134,18 +153,24 @@ public class ShowPersistenceImpl implements ShowPersistenceUseCase {
     public Optional<Show> getShowByID(UUID showId) {
         return dsl.selectFrom(SHOW)
             .where(SHOW.ID.eq(showId))
-            .fetchOptionalInto(Show.class);
+            .fetchOptional()
+            .map(this::fromRecord);
     }
 
     @Override
     public Optional<ArrayList<Show>> getShowsByEvent(UUID eventId) {
-        var results = dsl.selectFrom(SHOW)
+        var records = dsl.selectFrom(SHOW)
             .where(SHOW.EVENT_ID.eq(eventId))
-            .fetchInto(Show.class);
+            .fetch();
 
-        return results.isEmpty()
-            ? Optional.empty()
-            : Optional.of(new ArrayList<>(results));
+        if (records.isEmpty()) {
+            return Optional.empty();
+        }
+        var result = new ArrayList<Show>(records.size());
+        for (ShowRecord r : records) {
+            result.add(fromRecord(r));
+        }
+        return Optional.of(result);
     }
 
 }
