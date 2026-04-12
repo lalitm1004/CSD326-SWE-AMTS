@@ -1,0 +1,22 @@
+auditorium:
+  rows:
+    - { label: A, type: BALCONY,  count: 40 }
+    - { label: B, type: BALCONY,  count: 40 }
+    - { label: C, type: BALCONY,  count: 40 }
+    - { label: D, type: BALCONY,  count: 40 }
+    - { label: E, type: BALCONY,  count: 40 }
+    - { label: F, type: ORDINARY, count: 40 }
+    - { label: G, type: ORDINARY, count: 40 }
+    - { label: H, type: ORDINARY, count: 40 }
+    - { label: I, type: ORDINARY, count: 40 }
+    - { label: J, type: ORDINARY, count: 40 }
+    - { label: K, type: ORDINARY, count: 40 }
+    - { label: L, type: ORDINARY, count: 40 }
+    - { label: M, type: ORDINARY, count: 40 }
+    - { label: N, type: ORDINARY, count: 40 }
+    - { label: O, type: ORDINARY, count: 40 }
+    - { label: P, type: ORDINARY, count: 40 }
+    - { label: Q, type: ORDINARY, count: 40 }
+    - { label: R, type: ORDINARY, count: 40 }
+    - { label: S, type: ORDINARY, count: 40 }
+    - { label: T, type: ORDINARY, count: 40 }

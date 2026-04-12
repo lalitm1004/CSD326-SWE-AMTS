@@ -33,3 +33,6 @@ node_modules
 .settings
 .vscode
 .DS_Store
+
+# Supabase Studio scratch queries
+supabase/snippets/
