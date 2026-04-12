@@ -39,4 +39,16 @@ public class UserController {
         return user.map(u -> ResponseEntity.ok(u))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/clerks")
+    public ResponseEntity<java.util.List<UUID>> getAllFinancialClerks(
+            @RequestParam UUID actorUserId) {
+        return ResponseEntity.ok(userUseCases.getAllFinancialClerks(actorUserId));
+    }
+
+    @GetMapping("/sales-agents")
+    public ResponseEntity<java.util.List<UUID>> getAllSalesAgents(
+            @RequestParam UUID actorUserId) {
+        return ResponseEntity.ok(userUseCases.getAllSalesAgents(actorUserId));
+    }
 }

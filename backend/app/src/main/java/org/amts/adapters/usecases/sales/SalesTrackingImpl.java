@@ -1,0 +1,76 @@
+package org.amts.adapters.usecases.sales;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.amts.adapters.usecases.AuthorizationHelper;
+import org.amts.application.usecases.event.rawinterfaces.ShowPersistenceUseCase;
+import org.amts.application.usecases.sales.SalesTrackingUseCase;
+import org.amts.application.usecases.sales.rawinterfaces.SalesPersistenceUseCase;
+import org.amts.application.usecases.user.UserPersistenceUseCase;
+import org.amts.domain.entities.event.Show;
+import org.amts.domain.entities.user.Role;
+import org.amts.domain.entities.user.User;
+
+public class SalesTrackingImpl implements SalesTrackingUseCase {
+
+    private final SalesPersistenceUseCase persistence;
+    private final UserPersistenceUseCase userPersistence;
+    private final ShowPersistenceUseCase showPersistence;
+
+    public SalesTrackingImpl(
+            SalesPersistenceUseCase persistence,
+            UserPersistenceUseCase userPersistence,
+            ShowPersistenceUseCase showPersistence) {
+        this.persistence = persistence;
+        this.userPersistence = userPersistence;
+        this.showPersistence = showPersistence;
+    }
+
+    @Override
+    public double getRevenueByShow(UUID actorUserId, UUID showId) {
+        AuthorizationHelper.getAuthorizedUser(actorUserId, userPersistence, Role.PRESIDENT, Role.AUDITORIUM_SECRETARY);
+        return persistence.getRevenueByShow(showId);
+    }
+
+    @Override
+    public Map<UUID, Double> getRevenueByEvent(UUID actorUserId, UUID eventId) {
+        AuthorizationHelper.getAuthorizedUser(actorUserId, userPersistence, Role.PRESIDENT, Role.AUDITORIUM_SECRETARY);
+
+        List<Show> shows = showPersistence.getShowsByEvent(eventId).orElseGet(java.util.ArrayList::new);
+        Map<UUID, Double> breakdown = new HashMap<>();
+
+        for (Show show : shows) {
+            breakdown.put(show.getId(), getRevenueByShow(actorUserId, show.getId()));
+        }
+
+        return breakdown;
+    }
+
+    @Override
+    public double getOfflineRevenueByAgentForEvent(UUID actorUserId, UUID agentId, UUID eventId) {
+        validateAgentOrAdminAccess(actorUserId, agentId);
+        return persistence.getOfflineRevenueByAgentForEvent(agentId, eventId);
+    }
+
+    @Override
+    public double getOfflineRevenueByAgent(UUID actorUserId, UUID agentId) {
+        validateAgentOrAdminAccess(actorUserId, agentId);
+        return persistence.getOfflineRevenueByAgent(agentId);
+    }
+
+    private void validateAgentOrAdminAccess(UUID actorUserId, UUID agentId) {
+        User actor = AuthorizationHelper.getAuthorizedUser(actorUserId, userPersistence,
+                Role.PRESIDENT, Role.AUDITORIUM_SECRETARY, Role.SALES_AGENT);
+
+        if (actor.getRoles().contains(Role.SALES_AGENT) &&
+                !actor.getRoles().contains(Role.PRESIDENT) &&
+                !actor.getRoles().contains(Role.AUDITORIUM_SECRETARY)) {
+            if (!actorUserId.equals(agentId)) {
+                throw new SecurityException("Sales agents can only view their own sales data.");
+            }
+        }
+    }
+}

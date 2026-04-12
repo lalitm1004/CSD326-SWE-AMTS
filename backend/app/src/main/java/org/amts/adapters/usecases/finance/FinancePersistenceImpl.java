@@ -87,6 +87,23 @@ public class FinancePersistenceImpl implements FinancePersistenceUseCase {
     }
 
     @Override
+    public List<BalanceSheet> findBalanceSheetsByYear(int year) {
+        LocalDateTime startOfYear = LocalDateTime.of(year, 1, 1, 0, 0);
+        LocalDateTime startOfNextYear = startOfYear.plusYears(1);
+
+        var records = dsl.selectFrom(Tables.BALANCE_SHEET)
+                .where(Tables.BALANCE_SHEET.CREATED_AT.ge(startOfYear))
+                .and(Tables.BALANCE_SHEET.CREATED_AT.lt(startOfNextYear))
+                .fetch();
+
+        List<BalanceSheet> result = new ArrayList<>();
+        for (BalanceSheetRecord r : records) {
+            result.add(toBalanceSheet(r));
+        }
+        return result;
+    }
+
+    @Override
     public void saveExpense(Expense expense) {
         ExpenseRecord record = dsl.newRecord(Tables.EXPENSE);
         record.setId(expense.getId());

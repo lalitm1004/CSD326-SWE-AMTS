@@ -21,4 +21,6 @@ public interface ExpenseTrackingUseCase {
     Optional<BalanceSheet> getBalanceSheetByShow(UUID userId, UUID showId);
 
     List<BalanceSheet> getBalanceSheetsByEvent(UUID userId, UUID eventId);
+
+    List<BalanceSheet> getBalanceSheetsByYear(UUID userId, int year);
 }

@@ -15,4 +15,8 @@ public interface UserPersistenceUseCase {
     void updateUserEmail(UUID userId, String newEmail);
 
     void updateUserRoles(UUID userId, Set<Role> newRoles);
+
+    java.util.List<UUID> getAllFinancialClerks();
+
+    java.util.List<UUID> getAllSalesAgents();
 }

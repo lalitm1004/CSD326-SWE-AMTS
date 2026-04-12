@@ -15,6 +15,8 @@ public interface FinancePersistenceUseCase {
 
     List<BalanceSheet> findBalanceSheetsByEvent(UUID eventId);
 
+    List<BalanceSheet> findBalanceSheetsByYear(int year);
+
     void saveExpense(Expense expense);
 
     Optional<Expense> findExpenseById(UUID expenseId);

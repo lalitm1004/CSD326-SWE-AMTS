@@ -81,4 +81,10 @@ public class ExpenseTrackingImpl implements ExpenseTrackingUseCase {
         AuthorizationHelper.getAuthorizedUser(userId, userPersistence, Role.FINANCIAL_CLERK, Role.PRESIDENT);
         return persistence.findBalanceSheetsByEvent(eventId);
     }
+
+    @Override
+    public List<BalanceSheet> getBalanceSheetsByYear(UUID userId, int year) {
+        AuthorizationHelper.getAuthorizedUser(userId, userPersistence, Role.FINANCIAL_CLERK, Role.PRESIDENT);
+        return persistence.findBalanceSheetsByYear(year);
+    }
 }

@@ -94,4 +94,12 @@ public class ExpenseTrackingController {
     ) {
         return ResponseEntity.ok(expenseTracking.getBalanceSheetsByEvent(userId, eventId));
     }
+
+    @GetMapping("/balance-sheet/by-year")
+    public ResponseEntity<List<BalanceSheet>> getBalanceSheetsByYear(
+            @RequestParam UUID userId,
+            @RequestParam int year
+    ) {
+        return ResponseEntity.ok(expenseTracking.getBalanceSheetsByYear(userId, year));
+    }
 }

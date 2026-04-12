@@ -102,6 +102,22 @@ public class UserPersistenceImpl implements UserPersistenceUseCase {
         });
     }
 
+    @Override
+    public java.util.List<UUID> getAllFinancialClerks() {
+        return dsl.select(USER_ROLE_ASSIGNMENT.USER_ID)
+                .from(USER_ROLE_ASSIGNMENT)
+                .where(USER_ROLE_ASSIGNMENT.ROLE.eq(Roleenum.FINANCIAL_CLERK))
+                .fetchInto(UUID.class);
+    }
+
+    @Override
+    public java.util.List<UUID> getAllSalesAgents() {
+        return dsl.select(USER_ROLE_ASSIGNMENT.USER_ID)
+                .from(USER_ROLE_ASSIGNMENT)
+                .where(USER_ROLE_ASSIGNMENT.ROLE.eq(Roleenum.SALES_AGENT))
+                .fetchInto(UUID.class);
+    }
+
     private Optional<User> mapToUser(Result<? extends Record> result) {
         if (result.isEmpty()) {
             return Optional.empty();

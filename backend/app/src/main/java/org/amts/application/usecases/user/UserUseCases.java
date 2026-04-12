@@ -31,4 +31,14 @@ public class UserUseCases {
     public void removeRoles(UUID actorUserId, UUID targetUserId, Set<Role> roles) {
         assignUserRoles.removeRoles(actorUserId, targetUserId, roles);
     }
+
+    public java.util.List<UUID> getAllFinancialClerks(UUID actorUserId) {
+        org.amts.adapters.usecases.AuthorizationHelper.getAuthorizedUser(actorUserId, persistence, Role.PRESIDENT, Role.AUDITORIUM_SECRETARY);
+        return persistence.getAllFinancialClerks();
+    }
+
+    public java.util.List<UUID> getAllSalesAgents(UUID actorUserId) {
+        org.amts.adapters.usecases.AuthorizationHelper.getAuthorizedUser(actorUserId, persistence, Role.PRESIDENT, Role.AUDITORIUM_SECRETARY, Role.FINANCIAL_CLERK);
+        return persistence.getAllSalesAgents();
+    }
 }
