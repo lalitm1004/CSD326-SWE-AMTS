@@ -117,6 +117,7 @@ public class TicketPersistenceImpl implements TicketPersistenceUseCase {
             UUID showId,
             UUID spectatorUserId,
             UUID agentUserId,
+            double total,
             List<Ticket> tickets
     ) {
         dsl.transaction(ctx -> {
@@ -127,6 +128,7 @@ public class TicketPersistenceImpl implements TicketPersistenceUseCase {
                     .set(BOOKING.SHOW_ID, showId)
                     .set(BOOKING.CODE, UUID.randomUUID().toString())
                     .set(BOOKING.TYPE, org.amts.jooq.enums.Bookingtypeenum.OFFLINE)
+                    .set(BOOKING.AMOUNT, total)
                     .set(BOOKING.CREATED_AT, LocalDateTime.now())
                     .execute();
 

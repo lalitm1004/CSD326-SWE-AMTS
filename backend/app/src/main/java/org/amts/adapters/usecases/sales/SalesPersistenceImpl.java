@@ -46,22 +46,43 @@ public class SalesPersistenceImpl implements SalesPersistenceUseCase {
 
     @Override
     public double getOfflineRevenueByAgentForEvent(UUID agentId, UUID eventId) {
-        Double total = dsl.select(sum(Tables.BOOKING.AMOUNT))
-                .from(Tables.BOOKING)
+        var balconyPrice = Tables.SHOW.BALCONY_SEAT_PRICE;
+        var ordinaryPrice = Tables.SHOW.ORDINARY_SEAT_PRICE;
+
+        var priceField = org.jooq.impl.DSL.choose(Tables.SEAT.TYPE)
+                .when(org.amts.jooq.enums.Seattypeenum.BALCONY, balconyPrice)
+                .otherwise(ordinaryPrice);
+
+        Double total = dsl.select(sum(priceField))
+                .from(Tables.TICKET)
+                .join(Tables.BOOKING).on(Tables.TICKET.BOOKING_ID.eq(Tables.BOOKING.ID))
                 .join(Tables.OFFLINE_BOOKING).on(Tables.BOOKING.ID.eq(Tables.OFFLINE_BOOKING.ID))
-                .join(Tables.SHOW).on(Tables.BOOKING.SHOW_ID.eq(Tables.SHOW.ID))
+                .join(Tables.SHOW).on(Tables.TICKET.SHOW_ID.eq(Tables.SHOW.ID))
+                .join(Tables.SEAT).on(Tables.TICKET.SEAT_ID.eq(Tables.SEAT.ID))
                 .where(Tables.OFFLINE_BOOKING.SALES_AGENT_USER_ID.eq(agentId))
                 .and(Tables.SHOW.EVENT_ID.eq(eventId))
+                .and(Tables.TICKET.IS_REFUNDED.eq(false))
                 .fetchOneInto(Double.class);
         return total != null ? total : 0.0;
     }
 
     @Override
     public double getOfflineRevenueByAgent(UUID agentId) {
-        Double total = dsl.select(sum(Tables.BOOKING.AMOUNT))
-                .from(Tables.BOOKING)
+        var balconyPrice = Tables.SHOW.BALCONY_SEAT_PRICE;
+        var ordinaryPrice = Tables.SHOW.ORDINARY_SEAT_PRICE;
+
+        var priceField = org.jooq.impl.DSL.choose(Tables.SEAT.TYPE)
+                .when(org.amts.jooq.enums.Seattypeenum.BALCONY, balconyPrice)
+                .otherwise(ordinaryPrice);
+
+        Double total = dsl.select(sum(priceField))
+                .from(Tables.TICKET)
+                .join(Tables.BOOKING).on(Tables.TICKET.BOOKING_ID.eq(Tables.BOOKING.ID))
                 .join(Tables.OFFLINE_BOOKING).on(Tables.BOOKING.ID.eq(Tables.OFFLINE_BOOKING.ID))
+                .join(Tables.SHOW).on(Tables.TICKET.SHOW_ID.eq(Tables.SHOW.ID))
+                .join(Tables.SEAT).on(Tables.TICKET.SEAT_ID.eq(Tables.SEAT.ID))
                 .where(Tables.OFFLINE_BOOKING.SALES_AGENT_USER_ID.eq(agentId))
+                .and(Tables.TICKET.IS_REFUNDED.eq(false))
                 .fetchOneInto(Double.class);
         return total != null ? total : 0.0;
     }

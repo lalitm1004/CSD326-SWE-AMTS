@@ -29,6 +29,7 @@ public interface TicketPersistenceUseCase {
             UUID showId,
             UUID spectatorUserId,
             UUID agentUserId,
+            double total,
             List<Ticket> tickets
     );
 

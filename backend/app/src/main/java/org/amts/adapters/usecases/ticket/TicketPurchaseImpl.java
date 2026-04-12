@@ -46,7 +46,18 @@ public class TicketPurchaseImpl implements TicketPurchaseUseCase {
                 .where(SHOW.ID.eq(showId))
                 .fetchOne();
 
-        double total = show.getOrdinarySeatPrice() * seatIds.size();
+        var seats = dsl.selectFrom(org.amts.jooq.Tables.SEAT)
+                .where(org.amts.jooq.Tables.SEAT.ID.in(seatIds))
+                .fetch();
+
+        double total = 0;
+        for (var seat : seats) {
+            if (seat.getType() == org.amts.jooq.enums.Seattypeenum.BALCONY) {
+                total += show.getBalconySeatPrice();
+            } else {
+                total += show.getOrdinarySeatPrice();
+            }
+        }
 
         UUID couponId = null;
         if (couponCode != null) {
@@ -87,6 +98,23 @@ public class TicketPurchaseImpl implements TicketPurchaseUseCase {
         AuthorizationHelper.getAuthorizedUser(spectatorUserId, userPersistence, Role.SPECTATOR);
         AuthorizationHelper.getAuthorizedUser(agentUserId, userPersistence, Role.SALES_AGENT);
 
+        var show = dsl.selectFrom(SHOW)
+                .where(SHOW.ID.eq(showId))
+                .fetchOne();
+
+        var seats = dsl.selectFrom(org.amts.jooq.Tables.SEAT)
+                .where(org.amts.jooq.Tables.SEAT.ID.in(seatIds))
+                .fetch();
+
+        double total = 0;
+        for (var seat : seats) {
+            if (seat.getType() == org.amts.jooq.enums.Seattypeenum.BALCONY) {
+                total += show.getBalconySeatPrice();
+            } else {
+                total += show.getOrdinarySeatPrice();
+            }
+        }
+
         UUID bookingId = UUID.randomUUID();
         List<Ticket> tickets = generateTickets(bookingId, showId, seatIds);
 
@@ -95,6 +123,7 @@ public class TicketPurchaseImpl implements TicketPurchaseUseCase {
                 showId,
                 spectatorUserId,
                 agentUserId,
+                total,
                 tickets
         );
 
@@ -119,7 +148,13 @@ public class TicketPurchaseImpl implements TicketPurchaseUseCase {
                     show.getStartingAt()
             ).toHours();
 
-            double price = show.getOrdinarySeatPrice();
+            var seat = dsl.selectFrom(org.amts.jooq.Tables.SEAT)
+                    .where(org.amts.jooq.Tables.SEAT.ID.eq(ticket.getSeatId()))
+                    .fetchOne();
+
+            double price = seat.getType() == org.amts.jooq.enums.Seattypeenum.BALCONY 
+                    ? show.getBalconySeatPrice() : show.getOrdinarySeatPrice();
+                    
             double refund;
             RefundType type;
 
@@ -127,7 +162,7 @@ public class TicketPurchaseImpl implements TicketPurchaseUseCase {
                 refund = price - 5;
                 type = RefundType.BEFORE_THREE_DAYS;
             } else if (hoursBeforeShow > 24) {
-                refund = price - 10;
+                refund = price - (seat.getType() == org.amts.jooq.enums.Seattypeenum.BALCONY ? 15 : 10);
                 type = RefundType.BEFORE_ONE_DAY;
             } else {
                 refund = price * 0.5;
