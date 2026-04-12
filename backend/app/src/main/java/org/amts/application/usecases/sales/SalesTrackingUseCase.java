@@ -9,7 +9,7 @@ public interface SalesTrackingUseCase {
 
     Map<UUID, Double> getRevenueByEvent(UUID actorUserId, UUID eventId);
 
-    double getOfflineRevenueByAgentForEvent(UUID actorUserId, UUID agentId, UUID eventId);
+    double getOfflineCommissionByAgentForEvent(UUID actorUserId, UUID agentId, UUID eventId);
 
-    double getOfflineRevenueByAgent(UUID actorUserId, UUID agentId);
+    double getOfflineCommissionByAgent(UUID actorUserId, UUID agentId);
 }

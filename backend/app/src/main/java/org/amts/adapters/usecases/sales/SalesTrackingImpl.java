@@ -49,16 +49,24 @@ public class SalesTrackingImpl implements SalesTrackingUseCase {
         return breakdown;
     }
 
-    @Override
-    public double getOfflineRevenueByAgentForEvent(UUID actorUserId, UUID agentId, UUID eventId) {
+    private double getOfflineRevenueByAgentForEvent(UUID actorUserId, UUID agentId, UUID eventId) {
         validateAgentOrAdminAccess(actorUserId, agentId);
         return persistence.getOfflineRevenueByAgentForEvent(agentId, eventId);
     }
 
-    @Override
-    public double getOfflineRevenueByAgent(UUID actorUserId, UUID agentId) {
+    private double getOfflineRevenueByAgent(UUID actorUserId, UUID agentId) {
         validateAgentOrAdminAccess(actorUserId, agentId);
         return persistence.getOfflineRevenueByAgent(agentId);
+    }
+
+    @Override
+    public double getOfflineCommissionByAgentForEvent(UUID actorUserId, UUID agentId, UUID eventId) {
+        return getOfflineRevenueByAgentForEvent(actorUserId, agentId, eventId) * 0.01;
+    }
+
+    @Override
+    public double getOfflineCommissionByAgent(UUID actorUserId, UUID agentId) {
+        return getOfflineRevenueByAgent(actorUserId, agentId) * 0.01;
     }
 
     private void validateAgentOrAdminAccess(UUID actorUserId, UUID agentId) {

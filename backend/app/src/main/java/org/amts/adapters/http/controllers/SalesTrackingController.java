@@ -34,18 +34,18 @@ public class SalesTrackingController {
         return ResponseEntity.ok(salesTrackingUseCase.getRevenueByEvent(actorUserId, eventId));
     }
 
-    @GetMapping("/revenue/agent/event")
-    public ResponseEntity<Double> getOfflineRevenueByAgentForEvent(
+    @GetMapping("/commission/agent/event")
+    public ResponseEntity<Double> getOfflineCommissionByAgentForEvent(
             @RequestParam UUID actorUserId,
             @RequestParam UUID agentId,
             @RequestParam UUID eventId) {
-        return ResponseEntity.ok(salesTrackingUseCase.getOfflineRevenueByAgentForEvent(actorUserId, agentId, eventId));
+        return ResponseEntity.ok(salesTrackingUseCase.getOfflineCommissionByAgentForEvent(actorUserId, agentId, eventId));
     }
 
-    @GetMapping("/revenue/agent")
-    public ResponseEntity<Double> getOfflineRevenueByAgent(
+    @GetMapping("/commission/agent")
+    public ResponseEntity<Double> getOfflineCommissionByAgent(
             @RequestParam UUID actorUserId,
             @RequestParam UUID agentId) {
-        return ResponseEntity.ok(salesTrackingUseCase.getOfflineRevenueByAgent(actorUserId, agentId));
+        return ResponseEntity.ok(salesTrackingUseCase.getOfflineCommissionByAgent(actorUserId, agentId));
     }
 }
