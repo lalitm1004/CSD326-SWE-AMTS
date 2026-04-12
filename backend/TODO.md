@@ -2,10 +2,6 @@
 
 ## 1. Core Functionality Tracking
 - [ ] **FR-CL1: Auditorium Layout Initialization** - Need a text-based format parser & startup loader to declaratively inject seat limits/layouts into the system.
-- [ ] **FR-SCS5: Complimentary and VIP Seats** - Implement specific blocking flags ensuring certain seats are excluded from general sales pools.
-- [ ] **FR-TS2: Coupon Purchasing Charge** - Restructure the `/coupon` logic so it charges spectators a flat 1000 INR upon purchasing the 10% discount coupon instead of generating it freely.
-
-## 2. Non-Functional / Safety Rules
-- [ ] **NFR-SAFE-1: Temporary Seat Locking** - Implement a Redis or local cache 5-minute timeout lock for seats that have been clicked by a spectator, effectively preventing duplicate cart selections globally.
-- [ ] **NFR-DOC-1: Standardized API Docs** - Draft comprehensive Swagger or explicit Markdown API documentation specifying paths, schemas, and usage examples.
-- [ ] **Testing:** Create comprehensive unit, functional, & integration test layouts!
+- [ ] **FR-SCS5: Allocate Complimentary and VIP Seats** - Extend the domain configuration to designate specific seats as Complimentary or VIP, ensuring they are excluded from ordinary/balcony ticket sale pools.
+- [ ] **FR-TS5 & FR-TS6: Ticket Cancellation State Management** - Ticket cancellation currently only logs a refund but fails to return the underlying seat to an "available" state in the system. It also needs to explicitly invalidate the associated sales agent's commission (FR-TS6).
+- [ ] **FR-ET4: Generate Yearly Balance Sheet** - `ExpenseTrackingController.getBalanceSheetsByYear` returns a list of individual balance sheets; the SRS requires logic to auto-generate a single *consolidated* yearly balance sheet document.
