@@ -3,6 +3,7 @@ package org.amts.infrastructure.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.amts.domain.entities.seat.SeatDesignation;
 import org.amts.domain.entities.seat.SeatType;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -23,6 +24,7 @@ public class SeatLayoutProperties {
         private String label;
         private SeatType type;
         private int count;
+        private SeatDesignation designation = SeatDesignation.ORDINARY;
 
         public String getLabel() {
             return label;
@@ -46,6 +48,14 @@ public class SeatLayoutProperties {
 
         public void setCount(int count) {
             this.count = count;
+        }
+
+        public SeatDesignation getDesignation() {
+            return designation;
+        }
+
+        public void setDesignation(SeatDesignation designation) {
+            this.designation = designation;
         }
     }
 }

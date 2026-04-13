@@ -1,7 +1,9 @@
 package org.amts.infrastructure.config;
 
+import org.amts.adapters.usecases.ticket.ComplementaryAllocationImpl;
 import org.amts.adapters.usecases.ticket.TicketPersistenceImpl;
 import org.amts.adapters.usecases.ticket.TicketPurchaseImpl;
+import org.amts.application.usecases.ticket.ComplementaryAllocationUseCase;
 import org.amts.application.usecases.ticket.TicketPersistenceUseCase;
 import org.amts.application.usecases.ticket.TicketPurchaseUseCase;
 import org.amts.application.usecases.ticket.TicketUseCase;
@@ -28,10 +30,20 @@ public class TicketConfiguration {
     }
 
     @Bean
+    public ComplementaryAllocationUseCase complementaryAllocationUseCase(
+            DSLContext dslContext,
+            TicketPersistenceUseCase ticketPersistence,
+            UserPersistenceUseCase userPersistence
+    ) {
+        return new ComplementaryAllocationImpl(dslContext, ticketPersistence, userPersistence);
+    }
+
+    @Bean
     public TicketUseCase ticketUseCases(
             TicketPersistenceUseCase ticketPersistence,
-            TicketPurchaseUseCase ticketPurchase
+            TicketPurchaseUseCase ticketPurchase,
+            ComplementaryAllocationUseCase complementaryAllocation
     ) {
-        return new TicketUseCase(ticketPersistence, ticketPurchase);
+        return new TicketUseCase(ticketPersistence, ticketPurchase, complementaryAllocation);
     }
 }

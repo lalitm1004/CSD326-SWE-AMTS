@@ -9,6 +9,7 @@ import org.amts.application.usecases.ticket.TicketPersistenceUseCase;
 import org.amts.domain.entities.ticket.Ticket;
 import org.amts.domain.entities.ticket.TicketRefund;
 import static org.amts.jooq.Tables.BOOKING;
+import static org.amts.jooq.Tables.COMPLEMENTARY_BOOKING;
 import static org.amts.jooq.Tables.COUPON;
 import static org.amts.jooq.Tables.OFFLINE_BOOKING;
 import static org.amts.jooq.Tables.ONLINE_BOOKING;
@@ -136,6 +137,45 @@ public class TicketPersistenceImpl implements TicketPersistenceUseCase {
                     .set(OFFLINE_BOOKING.ID, bookingId)
                     .set(OFFLINE_BOOKING.SPECTATOR_USER_ID, spectatorUserId)
                     .set(OFFLINE_BOOKING.SALES_AGENT_USER_ID, agentUserId)
+                    .execute();
+
+            var queries = tickets.stream()
+                    .map(ticket -> tx.insertInto(TICKET)
+                            .set(TICKET.ID, ticket.getId())
+                            .set(TICKET.BOOKING_ID, ticket.getBookingId())
+                            .set(TICKET.SHOW_ID, ticket.getShowId())
+                            .set(TICKET.SEAT_ID, ticket.getSeatId())
+                            .set(TICKET.CODE, ticket.getCode())
+                            .set(TICKET.IS_REFUNDED, ticket.isRefunded())
+                            .set(TICKET.CREATED_AT, ticket.getCreatedAt()))
+                    .toArray(org.jooq.Query[]::new);
+
+            tx.batch(queries).execute();
+        });
+    }
+
+    @Override
+    public void saveComplementaryBookingWithTickets(
+            UUID bookingId,
+            UUID showId,
+            UUID createdByUserId,
+            List<Ticket> tickets
+    ) {
+        dsl.transaction(ctx -> {
+            var tx = ctx.dsl();
+
+            tx.insertInto(BOOKING)
+                    .set(BOOKING.ID, bookingId)
+                    .set(BOOKING.SHOW_ID, showId)
+                    .set(BOOKING.CODE, UUID.randomUUID().toString())
+                    .set(BOOKING.TYPE, org.amts.jooq.enums.Bookingtypeenum.COMPLEMENTARY)
+                    .set(BOOKING.AMOUNT, 0.0)
+                    .set(BOOKING.CREATED_AT, LocalDateTime.now())
+                    .execute();
+
+            tx.insertInto(COMPLEMENTARY_BOOKING)
+                    .set(COMPLEMENTARY_BOOKING.ID, bookingId)
+                    .set(COMPLEMENTARY_BOOKING.CREATED_BY_USER_ID, createdByUserId)
                     .execute();
 
             var queries = tickets.stream()

@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.amts.domain.entities.seat.SeatDesignation;
 import org.amts.domain.entities.seat.SeatType;
 import org.amts.infrastructure.config.SeatLayoutProperties;
 import org.amts.infrastructure.config.SeatLayoutProperties.RowConfig;
 import org.amts.jooq.Tables;
+import org.amts.jooq.enums.Seatdesignationenum;
 import org.amts.jooq.enums.Seattypeenum;
 import org.amts.jooq.tables.records.SeatRecord;
 import org.jooq.DSLContext;
@@ -37,16 +39,26 @@ public class SeatLayoutLoader implements ApplicationListener<ApplicationReadyEve
             Seattypeenum jooqType = row.getType() == SeatType.BALCONY
                     ? Seattypeenum.BALCONY
                     : Seattypeenum.ORDINARY;
+            Seatdesignationenum jooqDesignation = toJooqDesignation(row.getDesignation());
 
             for (int i = 1; i <= row.getCount(); i++) {
                 SeatRecord record = dsl.newRecord(Tables.SEAT);
                 record.setId(UUID.randomUUID());
                 record.setNumber(row.getLabel() + i);
                 record.setType(jooqType);
+                record.setDesignation(jooqDesignation);
                 records.add(record);
             }
         }
 
         dsl.batchInsert(records).execute();
+    }
+
+    private Seatdesignationenum toJooqDesignation(SeatDesignation designation) {
+        return switch (designation) {
+            case VIP -> Seatdesignationenum.VIP;
+            case COMPLIMENTARY -> Seatdesignationenum.COMPLIMENTARY;
+            default -> Seatdesignationenum.ORDINARY;
+        };
     }
 }
