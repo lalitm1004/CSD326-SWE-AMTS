@@ -33,6 +33,13 @@ public interface TicketPersistenceUseCase {
             List<Ticket> tickets
     );
 
+    void saveComplementaryBookingWithTickets(
+            UUID bookingId,
+            UUID showId,
+            UUID createdByUserId,
+            List<Ticket> tickets
+    );
+
     String saveCoupon(UUID spectatorUserId, UUID showId);
 
     void saveTickets(List<Ticket> tickets);

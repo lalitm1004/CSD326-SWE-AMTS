@@ -50,6 +50,12 @@ public class TicketPurchaseImpl implements TicketPurchaseUseCase {
                 .where(org.amts.jooq.Tables.SEAT.ID.in(seatIds))
                 .fetch();
 
+        boolean hasNonOrdinaryDesignation = seats.stream()
+                .anyMatch(s -> s.getDesignation() != org.amts.jooq.enums.Seatdesignationenum.ORDINARY);
+        if (hasNonOrdinaryDesignation) {
+            throw new IllegalArgumentException("Cannot purchase VIP or complimentary seats through this flow");
+        }
+
         double total = 0;
         for (var seat : seats) {
             if (seat.getType() == org.amts.jooq.enums.Seattypeenum.BALCONY) {
@@ -105,6 +111,12 @@ public class TicketPurchaseImpl implements TicketPurchaseUseCase {
         var seats = dsl.selectFrom(org.amts.jooq.Tables.SEAT)
                 .where(org.amts.jooq.Tables.SEAT.ID.in(seatIds))
                 .fetch();
+
+        boolean hasNonOrdinaryDesignationAgent = seats.stream()
+                .anyMatch(s -> s.getDesignation() != org.amts.jooq.enums.Seatdesignationenum.ORDINARY);
+        if (hasNonOrdinaryDesignationAgent) {
+            throw new IllegalArgumentException("Cannot purchase VIP or complimentary seats through this flow");
+        }
 
         double total = 0;
         for (var seat : seats) {

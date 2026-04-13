@@ -8,10 +8,12 @@ public class Seat {
     private final UUID id;
     private final String number;
     private final SeatType type;
+    private final SeatDesignation designation;
 
-    public Seat(UUID id, String number, SeatType type) {
+    public Seat(UUID id, String number, SeatType type, SeatDesignation designation) {
         this.id = Objects.requireNonNull(id, "Seat id must not be null");
         this.type = Objects.requireNonNull(type, "Seat type must not be null");
+        this.designation = Objects.requireNonNull(designation, "Seat designation must not be null");
 
         Objects.requireNonNull(number, "Seat number must not be null");
         if (number.isBlank()) {
@@ -32,6 +34,10 @@ public class Seat {
         return type;
     }
 
+    public SeatDesignation getDesignation() {
+        return designation;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -49,6 +55,6 @@ public class Seat {
 
     @Override
     public String toString() {
-        return "Seat{id=" + id + ", number='" + number + "', type=" + type + "}";
+        return "Seat{id=" + id + ", number='" + number + "', type=" + type + ", designation=" + designation + "}";
     }
 }

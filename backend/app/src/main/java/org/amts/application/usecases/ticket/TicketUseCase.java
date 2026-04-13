@@ -9,13 +9,16 @@ public class TicketUseCase {
 
     private final TicketPersistenceUseCase persistence;
     private final TicketPurchaseUseCase purchaseUseCase;
+    private final ComplementaryAllocationUseCase complementaryAllocation;
 
     public TicketUseCase(
             TicketPersistenceUseCase persistence,
-            TicketPurchaseUseCase purchaseUseCase) {
+            TicketPurchaseUseCase purchaseUseCase,
+            ComplementaryAllocationUseCase complementaryAllocation) {
 
         this.persistence = persistence;
         this.purchaseUseCase = purchaseUseCase;
+        this.complementaryAllocation = complementaryAllocation;
     }
 
     public List<Ticket> purchaseTickets(
@@ -62,5 +65,9 @@ public class TicketUseCase {
 
     public List<Ticket> getTicketsByBookingId(UUID bookingId) {
         return persistence.getTicketsByBookingId(bookingId);
+    }
+
+    public List<Ticket> allocateComplementaryTickets(UUID allocatedByUserId, UUID showId, List<UUID> seatIds) {
+        return complementaryAllocation.allocateComplementaryTickets(allocatedByUserId, showId, seatIds);
     }
 }

@@ -37,6 +37,12 @@ public class TicketController {
             List<UUID> ticketIds
     ) {}
 
+    record AllocateComplementaryRequest(
+            UUID allocatedByUserId,
+            UUID showId,
+            List<UUID> seatIds
+    ) {}
+
     @PostMapping("/purchase")
     public ResponseEntity<List<Ticket>> purchaseTickets(
             @RequestBody PurchaseTicketsRequest request) {
@@ -85,5 +91,16 @@ public class TicketController {
         return ResponseEntity.ok(
                 ticketUseCases.getTicketsByBookingId(bookingId)
         );
+    }
+
+    @PostMapping("/complimentary")
+    public ResponseEntity<List<Ticket>> allocateComplementaryTickets(
+            @RequestBody AllocateComplementaryRequest request) {
+        List<Ticket> tickets = ticketUseCases.allocateComplementaryTickets(
+                request.allocatedByUserId(),
+                request.showId(),
+                request.seatIds()
+        );
+        return ResponseEntity.ok(tickets);
     }
 }
