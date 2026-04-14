@@ -10,6 +10,7 @@ import org.amts.application.usecases.finance.ExpenseTrackingUseCase;
 import org.amts.application.usecases.finance.rawinterfaces.FinancePersistenceUseCase;
 import org.amts.application.usecases.user.UserPersistenceUseCase;
 import org.amts.domain.entities.finance.BalanceSheet;
+import org.amts.domain.entities.finance.ConsolidatedYearlyBalanceSheet;
 import org.amts.domain.entities.finance.Expense;
 import org.amts.domain.entities.user.Role;
 import org.amts.domain.valueobjects.Money;
@@ -86,5 +87,24 @@ public class ExpenseTrackingImpl implements ExpenseTrackingUseCase {
     public List<BalanceSheet> getBalanceSheetsByYear(UUID userId, int year) {
         AuthorizationHelper.getAuthorizedUser(userId, userPersistence, Role.FINANCIAL_CLERK, Role.PRESIDENT);
         return persistence.findBalanceSheetsByYear(year);
+    }
+
+    @Override
+    public ConsolidatedYearlyBalanceSheet getConsolidatedYearlyBalanceSheet(UUID userId, int year) {
+        AuthorizationHelper.getAuthorizedUser(userId, userPersistence, Role.FINANCIAL_CLERK, Role.PRESIDENT);
+
+        List<BalanceSheet> sheets = persistence.findBalanceSheetsByYear(year);
+
+        List<Expense> allExpenses = sheets.stream()
+                .flatMap(sheet -> sheet.getExpenses().stream())
+                .toList();
+
+        return new ConsolidatedYearlyBalanceSheet(
+                UUID.randomUUID(),
+                year,
+                allExpenses,
+                sheets.size(),
+                LocalDateTime.now()
+        );
     }
 }

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.amts.application.usecases.finance.ExpenseTrackingUseCase;
 import org.amts.domain.entities.finance.BalanceSheet;
+import org.amts.domain.entities.finance.ConsolidatedYearlyBalanceSheet;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -101,5 +102,13 @@ public class ExpenseTrackingController {
             @RequestParam int year
     ) {
         return ResponseEntity.ok(expenseTracking.getBalanceSheetsByYear(userId, year));
+    }
+
+    @GetMapping("/balance-sheet/yearly-consolidated")
+    public ResponseEntity<ConsolidatedYearlyBalanceSheet> getConsolidatedYearlyBalanceSheet(
+            @RequestParam UUID userId,
+            @RequestParam int year
+    ) {
+        return ResponseEntity.ok(expenseTracking.getConsolidatedYearlyBalanceSheet(userId, year));
     }
 }

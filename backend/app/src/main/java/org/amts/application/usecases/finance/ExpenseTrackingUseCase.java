@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.amts.domain.entities.finance.BalanceSheet;
+import org.amts.domain.entities.finance.ConsolidatedYearlyBalanceSheet;
 
 public interface ExpenseTrackingUseCase {
 
@@ -23,4 +24,6 @@ public interface ExpenseTrackingUseCase {
     List<BalanceSheet> getBalanceSheetsByEvent(UUID userId, UUID eventId);
 
     List<BalanceSheet> getBalanceSheetsByYear(UUID userId, int year);
+
+    ConsolidatedYearlyBalanceSheet getConsolidatedYearlyBalanceSheet(UUID userId, int year);
 }
