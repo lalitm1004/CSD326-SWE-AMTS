@@ -2,10 +2,13 @@ package org.amts.adapters.http.controllers;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.amts.application.usecases.event.ShowManagementUseCase;
 import org.amts.domain.entities.event.Show;
+import org.amts.domain.entities.seat.Seat;
+import org.amts.domain.entities.seat.SeatDesignation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -102,6 +105,17 @@ public class ShowController {
             UUID eventId
     ) {}
 
+    record UpdateSeatDesignationRequest(
+            UUID userId,
+            UUID seatId,
+            SeatDesignation designation
+    ) {}
+
+    record GetSeatsByShowRequest(
+            UUID userId,
+            UUID showId
+    ) {}
+
     @PostMapping
     public ResponseEntity<Void> addShowToEvent(@RequestBody AddShowToEventRequest request) {
         showManagement.addShowToEvent(
@@ -192,5 +206,16 @@ public class ShowController {
         return showManagement.getShowsByEvent(request.userId(), request.eventId())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/seat-designation")
+    public ResponseEntity<Void> updateSeatDesignation(@RequestBody UpdateSeatDesignationRequest request) {
+        showManagement.updateSeatDesignation(request.userId(), request.seatId(), request.designation());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/seats")
+    public ResponseEntity<List<Seat>> getSeatsByShow(@RequestBody GetSeatsByShowRequest request) {
+        return ResponseEntity.ok(showManagement.getSeatsByShow(request.userId(), request.showId()));
     }
 }

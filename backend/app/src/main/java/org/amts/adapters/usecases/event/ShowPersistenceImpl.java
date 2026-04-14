@@ -1,15 +1,21 @@
 package org.amts.adapters.usecases.event;
 
+import static org.amts.jooq.Tables.SEAT;
 import static org.amts.jooq.Tables.SHOW;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.amts.application.usecases.event.rawinterfaces.ShowPersistenceUseCase;
 import org.amts.domain.entities.event.Show;
+import org.amts.domain.entities.seat.Seat;
+import org.amts.domain.entities.seat.SeatDesignation;
+import org.amts.domain.entities.seat.SeatType;
 import org.amts.domain.valueobjects.Money;
+import org.amts.jooq.enums.Seatdesignationenum;
 import org.amts.jooq.tables.records.ShowRecord;
 import org.jooq.DSLContext;
 
@@ -171,6 +177,27 @@ public class ShowPersistenceImpl implements ShowPersistenceUseCase {
             result.add(fromRecord(r));
         }
         return Optional.of(result);
+    }
+
+    @Override
+    public void updateSeatDesignation(UUID seatId, SeatDesignation designation) {
+        dsl.update(SEAT)
+            .set(SEAT.DESIGNATION, Seatdesignationenum.valueOf(designation.name()))
+            .where(SEAT.ID.eq(seatId))
+            .execute();
+    }
+
+    @Override
+    public List<Seat> getSeatsByShow(UUID showId) {
+        return dsl.selectFrom(SEAT)
+            .orderBy(SEAT.NUMBER)
+            .fetch()
+            .map(r -> new Seat(
+                r.getId(),
+                r.getNumber(),
+                SeatType.valueOf(r.getType().name()),
+                SeatDesignation.valueOf(r.getDesignation().name())
+            ));
     }
 
 }

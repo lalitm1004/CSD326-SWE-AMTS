@@ -2,15 +2,18 @@ package org.amts.adapters.usecases.event;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.amts.domain.entities.event.Show;
+import org.amts.adapters.usecases.AuthorizationHelper;
 import org.amts.application.usecases.event.ShowManagementUseCase;
 import org.amts.application.usecases.event.rawinterfaces.ShowPersistenceUseCase;
 import org.amts.application.usecases.user.UserPersistenceUseCase;
-
-import org.amts.adapters.usecases.AuthorizationHelper;
+import org.amts.domain.entities.event.Show;
+import org.amts.domain.entities.seat.Seat;
+import org.amts.domain.entities.seat.SeatDesignation;
+import org.amts.domain.entities.user.Role;
 
 public class ShowManagementImpl implements ShowManagementUseCase {
     private final ShowPersistenceUseCase showPersistence;
@@ -124,5 +127,17 @@ public class ShowManagementImpl implements ShowManagementUseCase {
     public Optional<ArrayList<Show>> getShowsByEvent(UUID userId, UUID eventId) {
         AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
         return showPersistence.getShowsByEvent(eventId);
+    }
+
+    @Override
+    public void updateSeatDesignation(UUID userId, UUID seatId, SeatDesignation designation) {
+        AuthorizationHelper.getAuthorizedUser(userId, userPersistence, Role.SHOW_MANAGER, Role.AUDITORIUM_SECRETARY);
+        showPersistence.updateSeatDesignation(seatId, designation);
+    }
+
+    @Override
+    public List<Seat> getSeatsByShow(UUID userId, UUID showId) {
+        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
+        return showPersistence.getSeatsByShow(showId);
     }
 }

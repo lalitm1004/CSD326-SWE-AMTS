@@ -2,10 +2,13 @@ package org.amts.application.usecases.event;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.amts.domain.entities.event.Show;
+import org.amts.domain.entities.seat.Seat;
+import org.amts.domain.entities.seat.SeatDesignation;
 
 public interface ShowManagementUseCase {
     void addShowToEvent(
@@ -43,6 +46,10 @@ public interface ShowManagementUseCase {
     void updateShowNumBalconySeats(UUID userId, UUID showId, int newNumBalconySeats);
 
     Optional<Show> getShowByID(UUID userId, UUID showId);
-    
+
     Optional<ArrayList<Show>> getShowsByEvent(UUID userId, UUID eventId);
+
+    void updateSeatDesignation(UUID userId, UUID seatId, SeatDesignation designation);
+
+    List<Seat> getSeatsByShow(UUID userId, UUID showId);
 }
