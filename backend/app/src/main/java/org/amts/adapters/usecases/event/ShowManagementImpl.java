@@ -41,7 +41,12 @@ public class ShowManagementImpl implements ShowManagementUseCase {
         int numOrdinarySeats,
         int numBalconySeats
     ) {
-        AuthorizationHelper.getAuthorizedUser(createdByUserId, userPersistence);
+        AuthorizationHelper.getAuthorizedUser(
+            createdByUserId,
+            userPersistence,
+            Role.AUDITORIUM_SECRETARY,
+            Role.SHOW_MANAGER
+        );
         showPersistence.addShowToEvent(
             createdByUserId,
             eventId,
@@ -59,61 +64,111 @@ public class ShowManagementImpl implements ShowManagementUseCase {
 
     @Override
     public void deleteShow(UUID userId, UUID showId) {
-        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
+        AuthorizationHelper.getAuthorizedUser(
+            userId,
+            userPersistence,
+            Role.AUDITORIUM_SECRETARY,
+            Role.SHOW_MANAGER
+        );
         showPersistence.deleteShow(showId);
     }
 
     @Override
     public void updateShowName(UUID userId, UUID showId, String newName) {
-        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
+        AuthorizationHelper.getAuthorizedUser(
+            userId,
+            userPersistence,
+            Role.AUDITORIUM_SECRETARY,
+            Role.SHOW_MANAGER
+        );
         showPersistence.updateShowName(showId, newName);
     }
 
     @Override
     public void updateShowDescription(UUID userId, UUID showId, String newDescription) {
-        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
+        AuthorizationHelper.getAuthorizedUser(
+            userId,
+            userPersistence,
+            Role.AUDITORIUM_SECRETARY,
+            Role.SHOW_MANAGER
+        );
         showPersistence.updateShowDescription(showId, newDescription);
     }
 
     @Override
     public void updateShowThumbnail(UUID userId, UUID showId, String newUrl) {
-        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
+        AuthorizationHelper.getAuthorizedUser(
+            userId,
+            userPersistence,
+            Role.AUDITORIUM_SECRETARY,
+            Role.SHOW_MANAGER
+        );
         showPersistence.updateShowThumbnail(showId, newUrl);
     }
 
     @Override
     public void updateShowStartingAt(UUID userId, UUID showId, LocalDateTime newStartingAt) {
-        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
+        AuthorizationHelper.getAuthorizedUser(
+            userId,
+            userPersistence,
+            Role.AUDITORIUM_SECRETARY,
+            Role.SHOW_MANAGER
+        );
         showPersistence.updateShowStartingAt(showId, newStartingAt);
     }
 
     @Override
     public void updateShowEndingAt(UUID userId, UUID showId, LocalDateTime newEndingAt) {
-        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
+        AuthorizationHelper.getAuthorizedUser(
+            userId,
+            userPersistence,
+            Role.AUDITORIUM_SECRETARY,
+            Role.SHOW_MANAGER
+        );
         showPersistence.updateShowEndingAt(showId, newEndingAt);
     }
 
     @Override
     public void updateShowOrdinarySeatPrice(UUID userId, UUID showId, double newOrdinarySeatPrice) {
-        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
+        AuthorizationHelper.getAuthorizedUser(
+            userId,
+            userPersistence,
+            Role.AUDITORIUM_SECRETARY,
+            Role.SHOW_MANAGER
+        );
         showPersistence.updateShowOrdinarySeatPrice(showId, newOrdinarySeatPrice);
     }
 
     @Override
     public void updateShowBalconySeatPrice(UUID userId, UUID showId, double newBalconySeatPrice) {
-        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
+        AuthorizationHelper.getAuthorizedUser(
+            userId,
+            userPersistence,
+            Role.AUDITORIUM_SECRETARY,
+            Role.SHOW_MANAGER
+        );
         showPersistence.updateShowBalconySeatPrice(showId, newBalconySeatPrice);
     }
 
     @Override
     public void updateShowNumOrdinarySeats(UUID userId, UUID showId, int newNumOrdinarySeats) {
-        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
+        AuthorizationHelper.getAuthorizedUser(
+            userId,
+            userPersistence,
+            Role.AUDITORIUM_SECRETARY,
+            Role.SHOW_MANAGER
+        );
         showPersistence.updateShowNumOrdinarySeats(showId, newNumOrdinarySeats);
     }
 
     @Override
     public void updateShowNumBalconySeats(UUID userId, UUID showId, int newNumBalconySeats) {
-        AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
+        AuthorizationHelper.getAuthorizedUser(
+            userId,
+            userPersistence,
+            Role.AUDITORIUM_SECRETARY,
+            Role.SHOW_MANAGER
+        );
         showPersistence.updateShowNumBalconySeats(showId, newNumBalconySeats);
     }
 

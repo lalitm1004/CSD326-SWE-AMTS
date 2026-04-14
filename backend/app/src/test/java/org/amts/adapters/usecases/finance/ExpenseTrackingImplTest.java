@@ -145,6 +145,50 @@ class ExpenseTrackingImplTest {
 
             verify(persistence, never()).updateExpenseName(any(), any());
         }
+
+        @Test
+        @DisplayName("updateExpenseDescription - Succeeds for clerk")
+        void updateExpenseDescription_ClerkRole_Succeeds() {
+            when(userPersistence.getUserById(clerkId)).thenReturn(Optional.of(clerkUser));
+
+            assertDoesNotThrow(() ->
+                    expenseTracking.updateExpenseDescription(clerkId, expenseId, "Updated description"));
+
+            verify(persistence).updateExpenseDescription(eq(expenseId), eq("Updated description"));
+        }
+
+        @Test
+        @DisplayName("updateExpenseDescription - Throws PermissionException for non-clerk")
+        void updateExpenseDescription_NotClerk_ThrowsPermissionException() {
+            when(userPersistence.getUserById(spectatorId)).thenReturn(Optional.of(spectatorUser));
+
+            assertThrows(PermissionException.class, () ->
+                    expenseTracking.updateExpenseDescription(spectatorId, expenseId, "Updated description"));
+
+            verify(persistence, never()).updateExpenseDescription(any(), any());
+        }
+
+        @Test
+        @DisplayName("updateExpenseAmount - Succeeds for clerk")
+        void updateExpenseAmount_ClerkRole_Succeeds() {
+            when(userPersistence.getUserById(clerkId)).thenReturn(Optional.of(clerkUser));
+
+            assertDoesNotThrow(() ->
+                    expenseTracking.updateExpenseAmount(clerkId, expenseId, 2500.0));
+
+            verify(persistence).updateExpenseAmount(eq(expenseId), eq(2500.0));
+        }
+
+        @Test
+        @DisplayName("updateExpenseAmount - Throws PermissionException for non-clerk")
+        void updateExpenseAmount_NotClerk_ThrowsPermissionException() {
+            when(userPersistence.getUserById(spectatorId)).thenReturn(Optional.of(spectatorUser));
+
+            assertThrows(PermissionException.class, () ->
+                    expenseTracking.updateExpenseAmount(spectatorId, expenseId, 2500.0));
+
+            verify(persistence, never()).updateExpenseAmount(any(), anyDouble());
+        }
     }
 
     @Nested
@@ -222,6 +266,29 @@ class ExpenseTrackingImplTest {
 
             assertEquals(1, result.size());
             assertEquals(existingSheet, result.get(0));
+        }
+
+        @Test
+        @DisplayName("getBalanceSheetsByYear - President can query yearly sheets")
+        void getBalanceSheetsByYear_President_ReturnsResult() {
+            when(userPersistence.getUserById(presidentId)).thenReturn(Optional.of(presidentUser));
+            when(persistence.findBalanceSheetsByYear(2025)).thenReturn(List.of(existingSheet));
+
+            List<BalanceSheet> result = expenseTracking.getBalanceSheetsByYear(presidentId, 2025);
+
+            assertEquals(1, result.size());
+            assertEquals(existingSheet, result.get(0));
+        }
+
+        @Test
+        @DisplayName("getBalanceSheetsByYear - Unauthorized user throws PermissionException")
+        void getBalanceSheetsByYear_Unauthorized_Throws() {
+            when(userPersistence.getUserById(spectatorId)).thenReturn(Optional.of(spectatorUser));
+
+            assertThrows(PermissionException.class, () ->
+                    expenseTracking.getBalanceSheetsByYear(spectatorId, 2025));
+
+            verify(persistence, never()).findBalanceSheetsByYear(anyInt());
         }
     }
 

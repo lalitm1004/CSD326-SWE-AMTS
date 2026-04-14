@@ -31,13 +31,13 @@ public class SalesTrackingImpl implements SalesTrackingUseCase {
 
     @Override
     public double getRevenueByShow(UUID actorUserId, UUID showId) {
-        AuthorizationHelper.getAuthorizedUser(actorUserId, userPersistence, Role.PRESIDENT, Role.AUDITORIUM_SECRETARY);
+        AuthorizationHelper.getAuthorizedUser(actorUserId, userPersistence, Role.PRESIDENT, Role.FINANCIAL_CLERK);
         return persistence.getRevenueByShow(showId);
     }
 
     @Override
     public Map<UUID, Double> getRevenueByEvent(UUID actorUserId, UUID eventId) {
-        AuthorizationHelper.getAuthorizedUser(actorUserId, userPersistence, Role.PRESIDENT, Role.AUDITORIUM_SECRETARY);
+        AuthorizationHelper.getAuthorizedUser(actorUserId, userPersistence, Role.PRESIDENT, Role.FINANCIAL_CLERK);
 
         List<Show> shows = showPersistence.getShowsByEvent(eventId).orElseGet(java.util.ArrayList::new);
         Map<UUID, Double> breakdown = new HashMap<>();
@@ -71,11 +71,11 @@ public class SalesTrackingImpl implements SalesTrackingUseCase {
 
     private void validateAgentOrAdminAccess(UUID actorUserId, UUID agentId) {
         User actor = AuthorizationHelper.getAuthorizedUser(actorUserId, userPersistence,
-                Role.PRESIDENT, Role.AUDITORIUM_SECRETARY, Role.SALES_AGENT);
+                Role.PRESIDENT, Role.FINANCIAL_CLERK, Role.SALES_AGENT);
 
         if (actor.getRoles().contains(Role.SALES_AGENT) &&
                 !actor.getRoles().contains(Role.PRESIDENT) &&
-                !actor.getRoles().contains(Role.AUDITORIUM_SECRETARY)) {
+                !actor.getRoles().contains(Role.FINANCIAL_CLERK)) {
             if (!actorUserId.equals(agentId)) {
                 throw new SecurityException("Sales agents can only view their own sales data.");
             }
