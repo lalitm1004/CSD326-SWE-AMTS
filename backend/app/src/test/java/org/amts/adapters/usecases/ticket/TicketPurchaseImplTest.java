@@ -383,7 +383,8 @@ class TicketPurchaseImplTest {
 
             when(persistence.getTicketById(ticketId)).thenReturn(Optional.of(
                     new Ticket(ticketId, UUID.randomUUID(), showId, seatId, "ABCD1234", false, LocalDateTime.now())));
-            doNothing().when(persistence).saveRefundAndMarkTicket(any(), any());
+            when(persistence.getAgentForTicket(ticketId)).thenReturn(null);
+            doNothing().when(persistence).saveRefundAndMarkTicketWithSeatRelease(any(), any(), any());
 
             MockDataProvider provider = ctx -> {
                 DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
@@ -406,7 +407,8 @@ class TicketPurchaseImplTest {
 
             when(persistence.getTicketById(ticketId)).thenReturn(Optional.of(
                     new Ticket(ticketId, UUID.randomUUID(), showId, seatId, "ABCD1234", false, LocalDateTime.now())));
-            doNothing().when(persistence).saveRefundAndMarkTicket(any(), any());
+            when(persistence.getAgentForTicket(ticketId)).thenReturn(null);
+            doNothing().when(persistence).saveRefundAndMarkTicketWithSeatRelease(any(), any(), any());
 
             MockDataProvider provider = ctx -> {
                 DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
@@ -429,7 +431,8 @@ class TicketPurchaseImplTest {
 
             when(persistence.getTicketById(ticketId)).thenReturn(Optional.of(
                     new Ticket(ticketId, UUID.randomUUID(), showId, seatId, "ABCD1234", false, LocalDateTime.now())));
-            doNothing().when(persistence).saveRefundAndMarkTicket(any(), any());
+            when(persistence.getAgentForTicket(ticketId)).thenReturn(null);
+            doNothing().when(persistence).saveRefundAndMarkTicketWithSeatRelease(any(), any(), any());
 
             MockDataProvider provider = ctx -> {
                 DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
@@ -452,7 +455,8 @@ class TicketPurchaseImplTest {
 
             when(persistence.getTicketById(ticketId)).thenReturn(Optional.of(
                     new Ticket(ticketId, UUID.randomUUID(), showId, seatId, "ABCD1234", false, LocalDateTime.now())));
-            doNothing().when(persistence).saveRefundAndMarkTicket(any(), any());
+            when(persistence.getAgentForTicket(ticketId)).thenReturn(null);
+            doNothing().when(persistence).saveRefundAndMarkTicketWithSeatRelease(any(), any(), any());
 
             MockDataProvider provider = ctx -> {
                 DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
@@ -479,17 +483,16 @@ class TicketPurchaseImplTest {
                     new Ticket(ticketId1, UUID.randomUUID(), showId, seatId, "CODE0001", false, LocalDateTime.now())));
             when(persistence.getTicketById(ticketId2)).thenReturn(Optional.of(
                     new Ticket(ticketId2, UUID.randomUUID(), showId, seatId2, "CODE0002", false, LocalDateTime.now())));
-            doNothing().when(persistence).saveRefundAndMarkTicket(any(), any());
+            when(persistence.getAgentForTicket(any())).thenReturn(null);
+            doNothing().when(persistence).saveRefundAndMarkTicketWithSeatRelease(any(), any(), any());
 
             MockDataProvider provider = ctx -> {
                 DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
                 String sql = ctx.sql().toLowerCase();
                 if (sql.contains("show")) return new MockResult[]{showResult(dsl, showId, 20.0, 40.0, showTime)};
                 if (sql.contains("seat")) {
-                    // Return ORDINARY seat for both IDs — bindings will contain one of the seat UUIDs
                     var result = dsl.newResult(SEAT.ID, SEAT.NUMBER, SEAT.TYPE, SEAT.DESIGNATION);
                     var rec = dsl.newRecord(SEAT.ID, SEAT.NUMBER, SEAT.TYPE, SEAT.DESIGNATION);
-                    // Use first seatId as default; doesn't affect price since both are ORDINARY
                     rec.set(SEAT.ID, seatId);
                     rec.set(SEAT.NUMBER, "A1");
                     rec.set(SEAT.TYPE, Seattypeenum.ORDINARY);
@@ -505,15 +508,16 @@ class TicketPurchaseImplTest {
         }
 
         @Test
-        @DisplayName("Calls saveRefundAndMarkTicket for each cancelled ticket")
-        void cancelTickets_CallsSaveRefundAndMarkTicket() {
+        @DisplayName("Calls saveRefundAndMarkTicketWithSeatRelease for each cancelled ticket")
+        void cancelTickets_CallsSaveRefundAndMarkTicketWithSeatRelease() {
             when(userPersistence.getUserById(spectatorId)).thenReturn(Optional.of(spectatorUser));
             UUID ticketId = UUID.randomUUID();
             LocalDateTime showTime = LocalDateTime.now().plusDays(5);
 
             when(persistence.getTicketById(ticketId)).thenReturn(Optional.of(
                     new Ticket(ticketId, UUID.randomUUID(), showId, seatId, "ABCD1234", false, LocalDateTime.now())));
-            doNothing().when(persistence).saveRefundAndMarkTicket(any(), any());
+            when(persistence.getAgentForTicket(ticketId)).thenReturn(null);
+            doNothing().when(persistence).saveRefundAndMarkTicketWithSeatRelease(any(), any(), any());
 
             MockDataProvider provider = ctx -> {
                 DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
@@ -525,7 +529,58 @@ class TicketPurchaseImplTest {
 
             createImpl(provider).cancelTickets(spectatorId, List.of(ticketId));
 
-            verify(persistence).saveRefundAndMarkTicket(eq(ticketId), any(TicketRefund.class));
+            verify(persistence).saveRefundAndMarkTicketWithSeatRelease(eq(ticketId), any(TicketRefund.class), isNull());
+        }
+
+        @Test
+        @DisplayName("Passes null agent to persistence for an online booking cancellation")
+        void cancelTickets_OnlineBooking_PassesNullAgentToPersistence() {
+            when(userPersistence.getUserById(spectatorId)).thenReturn(Optional.of(spectatorUser));
+            UUID ticketId = UUID.randomUUID();
+            LocalDateTime showTime = LocalDateTime.now().plusDays(5);
+
+            when(persistence.getTicketById(ticketId)).thenReturn(Optional.of(
+                    new Ticket(ticketId, UUID.randomUUID(), showId, seatId, "ABCD1234", false, LocalDateTime.now())));
+            when(persistence.getAgentForTicket(ticketId)).thenReturn(null);
+            doNothing().when(persistence).saveRefundAndMarkTicketWithSeatRelease(any(), any(), any());
+
+            MockDataProvider provider = ctx -> {
+                DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
+                String sql = ctx.sql().toLowerCase();
+                if (sql.contains("show")) return new MockResult[]{showResult(dsl, showId, 30.0, 50.0, showTime)};
+                if (sql.contains("seat")) return new MockResult[]{seatResult(dsl, seatId, Seattypeenum.ORDINARY, Seatdesignationenum.ORDINARY)};
+                return new MockResult[]{new MockResult(0, dsl.newResult())};
+            };
+
+            createImpl(provider).cancelTickets(spectatorId, List.of(ticketId));
+
+            verify(persistence).saveRefundAndMarkTicketWithSeatRelease(eq(ticketId), any(TicketRefund.class), isNull());
+        }
+
+        @Test
+        @DisplayName("Passes agent UUID to persistence for an offline booking cancellation")
+        void cancelTickets_OfflineBooking_PassesAgentIdToPersistence() {
+            when(userPersistence.getUserById(spectatorId)).thenReturn(Optional.of(spectatorUser));
+            UUID ticketId = UUID.randomUUID();
+            UUID expectedAgentId = UUID.randomUUID();
+            LocalDateTime showTime = LocalDateTime.now().plusDays(5);
+
+            when(persistence.getTicketById(ticketId)).thenReturn(Optional.of(
+                    new Ticket(ticketId, UUID.randomUUID(), showId, seatId, "ABCD1234", false, LocalDateTime.now())));
+            when(persistence.getAgentForTicket(ticketId)).thenReturn(expectedAgentId);
+            doNothing().when(persistence).saveRefundAndMarkTicketWithSeatRelease(any(), any(), any());
+
+            MockDataProvider provider = ctx -> {
+                DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
+                String sql = ctx.sql().toLowerCase();
+                if (sql.contains("show")) return new MockResult[]{showResult(dsl, showId, 30.0, 50.0, showTime)};
+                if (sql.contains("seat")) return new MockResult[]{seatResult(dsl, seatId, Seattypeenum.ORDINARY, Seatdesignationenum.ORDINARY)};
+                return new MockResult[]{new MockResult(0, dsl.newResult())};
+            };
+
+            createImpl(provider).cancelTickets(spectatorId, List.of(ticketId));
+
+            verify(persistence).saveRefundAndMarkTicketWithSeatRelease(eq(ticketId), any(TicketRefund.class), eq(expectedAgentId));
         }
     }
 }

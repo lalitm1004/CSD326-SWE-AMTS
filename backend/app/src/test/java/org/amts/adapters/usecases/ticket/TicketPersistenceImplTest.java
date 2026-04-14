@@ -516,5 +516,118 @@ class TicketPersistenceImplTest {
 
             assertEquals("SAME_DAY", capturedRefundType.get());
         }
+
+        @Test
+        @DisplayName("saveRefundAndMarkTicketWithSeatRelease - Sets is_refunded=true and seat_id=null on ticket")
+        void saveRefundAndMarkTicketWithSeatRelease_SetsIsRefundedAndNullsSeatId() {
+            var capturedIsRefunded = new AtomicReference<Boolean>();
+            var seatIdSetToNull = new AtomicReference<>(false);
+
+            MockDataProvider provider = ctx -> {
+                String sql = ctx.sql().toLowerCase();
+                if (sql.contains("update") && sql.contains("ticket")) {
+                    Object[] bindings = ctx.bindings();
+                    if (bindings != null) {
+                        for (Object b : bindings) {
+                            if (b instanceof Boolean bool) capturedIsRefunded.set(bool);
+                        }
+                        // seat_id binding will be null when setNull() is used
+                        for (Object b : bindings) {
+                            if (b == null) seatIdSetToNull.set(true);
+                        }
+                    }
+                }
+                return new MockResult[]{new MockResult(1, null)};
+            };
+
+            UUID ticketId = UUID.randomUUID();
+            TicketRefund refund = new TicketRefund(ticketId, RefundType.BEFORE_THREE_DAYS, LocalDateTime.now());
+
+            createPersistence(provider).saveRefundAndMarkTicketWithSeatRelease(ticketId, refund, null);
+
+            assertTrue(Boolean.TRUE.equals(capturedIsRefunded.get()), "is_refunded should be set to true");
+            assertTrue(seatIdSetToNull.get(), "seat_id should be set to null");
+        }
+
+        @Test
+        @DisplayName("saveRefundAndMarkTicketWithSeatRelease - Online cancellation (null agent) does not insert commission_invalidation")
+        void saveRefundAndMarkTicketWithSeatRelease_OnlineCancellation_NoCommissionInvalidation() {
+            var capturedSqls = new ArrayList<String>();
+
+            MockDataProvider provider = ctx -> {
+                capturedSqls.add(ctx.sql().toLowerCase());
+                return new MockResult[]{new MockResult(1, null)};
+            };
+
+            UUID ticketId = UUID.randomUUID();
+            TicketRefund refund = new TicketRefund(ticketId, RefundType.SAME_DAY, LocalDateTime.now());
+
+            createPersistence(provider).saveRefundAndMarkTicketWithSeatRelease(ticketId, refund, null);
+
+            assertTrue(capturedSqls.stream().noneMatch(s -> s.contains("commission_invalidation")),
+                    "Should NOT insert into commission_invalidation for online cancellation");
+        }
+
+        @Test
+        @DisplayName("saveRefundAndMarkTicketWithSeatRelease - Offline cancellation inserts into commission_invalidation")
+        void saveRefundAndMarkTicketWithSeatRelease_OfflineCancellation_InsertsCommissionInvalidation() {
+            var capturedSqls = new ArrayList<String>();
+            UUID agentId = UUID.randomUUID();
+            var capturedAgentId = new AtomicReference<UUID>();
+
+            MockDataProvider provider = ctx -> {
+                String sql = ctx.sql().toLowerCase();
+                capturedSqls.add(sql);
+                if (sql.contains("commission_invalidation")) {
+                    Object[] bindings = ctx.bindings();
+                    if (bindings != null) {
+                        for (Object b : bindings) {
+                            if (b instanceof UUID u && u.equals(agentId)) capturedAgentId.set(u);
+                        }
+                    }
+                }
+                return new MockResult[]{new MockResult(1, null)};
+            };
+
+            UUID ticketId = UUID.randomUUID();
+            TicketRefund refund = new TicketRefund(ticketId, RefundType.BEFORE_ONE_DAY, LocalDateTime.now());
+
+            createPersistence(provider).saveRefundAndMarkTicketWithSeatRelease(ticketId, refund, agentId);
+
+            assertTrue(capturedSqls.stream().anyMatch(s -> s.contains("commission_invalidation")),
+                    "Should insert into commission_invalidation for offline cancellation");
+            assertEquals(agentId, capturedAgentId.get(), "Agent UUID should be bound in commission_invalidation insert");
+        }
+
+        @Test
+        @DisplayName("getAgentForTicket - Returns agent UUID for a ticket from an offline booking")
+        void getAgentForTicket_OfflineBooking_ReturnsAgentId() {
+            UUID agentId = UUID.randomUUID();
+
+            MockDataProvider provider = ctx -> {
+                DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
+                var result = dsl.newResult(OFFLINE_BOOKING.SALES_AGENT_USER_ID);
+                var record = dsl.newRecord(OFFLINE_BOOKING.SALES_AGENT_USER_ID);
+                record.set(OFFLINE_BOOKING.SALES_AGENT_USER_ID, agentId);
+                result.add(record);
+                return new MockResult[]{new MockResult(1, result)};
+            };
+
+            UUID result = createPersistence(provider).getAgentForTicket(UUID.randomUUID());
+            assertEquals(agentId, result);
+        }
+
+        @Test
+        @DisplayName("getAgentForTicket - Returns null for a ticket from an online booking (no offline_booking row)")
+        void getAgentForTicket_OnlineBooking_ReturnsNull() {
+            MockDataProvider provider = ctx -> {
+                DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
+                var result = dsl.newResult(OFFLINE_BOOKING.SALES_AGENT_USER_ID);
+                return new MockResult[]{new MockResult(0, result)};
+            };
+
+            UUID result = createPersistence(provider).getAgentForTicket(UUID.randomUUID());
+            assertNull(result);
+        }
     }
 }
