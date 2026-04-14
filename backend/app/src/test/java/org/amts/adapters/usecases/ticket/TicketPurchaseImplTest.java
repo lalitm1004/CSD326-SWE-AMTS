@@ -282,6 +282,49 @@ class TicketPurchaseImplTest {
     // -------------------------------------------------------------------------
 
     @Nested
+    @DisplayName("purchaseCoupon()")
+    class PurchaseCouponTests {
+
+        @Test
+        @DisplayName("Returns generated coupon code for spectator")
+        void purchaseCoupon_Spectator_ReturnsCode() {
+            when(userPersistence.getUserById(spectatorId)).thenReturn(Optional.of(spectatorUser));
+            when(persistence.saveCoupon(spectatorId, showId)).thenReturn("1234567890");
+
+            String code = createImpl(ctx -> new MockResult[]{new MockResult(0, DSL.using(SQLDialect.POSTGRES).newResult())})
+                    .purchaseCoupon(spectatorId, showId);
+
+            assertEquals("1234567890", code);
+            verify(persistence).saveCoupon(spectatorId, showId);
+        }
+
+        @Test
+        @DisplayName("Throws UserNotFoundException when spectator does not exist")
+        void purchaseCoupon_MissingUser_Throws() {
+            when(userPersistence.getUserById(spectatorId)).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () ->
+                    createImpl(ctx -> new MockResult[]{new MockResult(0, DSL.using(SQLDialect.POSTGRES).newResult())})
+                            .purchaseCoupon(spectatorId, showId));
+        }
+
+        @Test
+        @DisplayName("Throws PermissionException when user is not a spectator")
+        void purchaseCoupon_NotSpectator_Throws() {
+            User nonSpectator = new User(spectatorId, "x@test.com", Set.of(Role.SALES_AGENT), LocalDateTime.now());
+            when(userPersistence.getUserById(spectatorId)).thenReturn(Optional.of(nonSpectator));
+
+            assertThrows(PermissionException.class, () ->
+                    createImpl(ctx -> new MockResult[]{new MockResult(0, DSL.using(SQLDialect.POSTGRES).newResult())})
+                            .purchaseCoupon(spectatorId, showId));
+
+            verify(persistence, never()).saveCoupon(any(), any());
+        }
+    }
+
+    // -------------------------------------------------------------------------
+
+    @Nested
     @DisplayName("purchaseTicketsViaAgent()")
     class PurchaseTicketsViaAgentTests {
 
