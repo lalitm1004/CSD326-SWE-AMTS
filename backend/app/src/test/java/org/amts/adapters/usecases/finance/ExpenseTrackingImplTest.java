@@ -5,8 +5,11 @@ import org.amts.application.exceptions.user.UserNotFoundException;
 import org.amts.application.usecases.finance.rawinterfaces.FinancePersistenceUseCase;
 import org.amts.application.usecases.user.UserPersistenceUseCase;
 import org.amts.domain.entities.finance.BalanceSheet;
+import org.amts.domain.entities.finance.ConsolidatedYearlyBalanceSheet;
+import org.amts.domain.entities.finance.Expense;
 import org.amts.domain.entities.user.Role;
 import org.amts.domain.entities.user.User;
+import org.amts.domain.valueobjects.Money;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -219,6 +222,68 @@ class ExpenseTrackingImplTest {
 
             assertEquals(1, result.size());
             assertEquals(existingSheet, result.get(0));
+        }
+    }
+
+    @Nested
+    @DisplayName("Consolidated Yearly Balance Sheet Tests")
+    class ConsolidatedYearlyBalanceSheetTests {
+
+        @Test
+        @DisplayName("getConsolidatedYearlyBalanceSheet - Clerk role flattens expenses from all shows")
+        void getConsolidatedYearlyBalanceSheet_ClerkRole_ReturnsConsolidated() {
+            Expense e1 = new Expense(UUID.randomUUID(), clerkId, UUID.randomUUID(), "Lighting", null, Money.of(1000.0), LocalDateTime.now());
+            Expense e2 = new Expense(UUID.randomUUID(), clerkId, UUID.randomUUID(), "Sound", null, Money.of(500.0), LocalDateTime.now());
+            Expense e3 = new Expense(UUID.randomUUID(), clerkId, UUID.randomUUID(), "Setup", null, Money.of(200.0), LocalDateTime.now());
+
+            BalanceSheet sheet1 = new BalanceSheet(UUID.randomUUID(), clerkId, UUID.randomUUID(), List.of(e1, e2), LocalDateTime.now());
+            BalanceSheet sheet2 = new BalanceSheet(UUID.randomUUID(), clerkId, UUID.randomUUID(), List.of(e3), LocalDateTime.now());
+
+            when(userPersistence.getUserById(clerkId)).thenReturn(Optional.of(clerkUser));
+            when(persistence.findBalanceSheetsByYear(2025)).thenReturn(List.of(sheet1, sheet2));
+
+            ConsolidatedYearlyBalanceSheet result = expenseTracking.getConsolidatedYearlyBalanceSheet(clerkId, 2025);
+
+            assertEquals(2025, result.getYear());
+            assertEquals(2, result.getNumberOfShows());
+            assertEquals(3, result.getExpenses().size());
+            assertEquals(Money.of(1700.0), result.getTotalExpenses());
+        }
+
+        @Test
+        @DisplayName("getConsolidatedYearlyBalanceSheet - President role is authorized")
+        void getConsolidatedYearlyBalanceSheet_PresidentRole_ReturnsConsolidated() {
+            when(userPersistence.getUserById(presidentId)).thenReturn(Optional.of(presidentUser));
+            when(persistence.findBalanceSheetsByYear(2025)).thenReturn(List.of(existingSheet));
+
+            ConsolidatedYearlyBalanceSheet result = expenseTracking.getConsolidatedYearlyBalanceSheet(presidentId, 2025);
+
+            assertNotNull(result);
+            assertEquals(1, result.getNumberOfShows());
+        }
+
+        @Test
+        @DisplayName("getConsolidatedYearlyBalanceSheet - Spectator role throws PermissionException")
+        void getConsolidatedYearlyBalanceSheet_SpectatorRole_ThrowsPermissionException() {
+            when(userPersistence.getUserById(spectatorId)).thenReturn(Optional.of(spectatorUser));
+
+            assertThrows(PermissionException.class, () ->
+                    expenseTracking.getConsolidatedYearlyBalanceSheet(spectatorId, 2025));
+
+            verify(persistence, never()).findBalanceSheetsByYear(any(int.class));
+        }
+
+        @Test
+        @DisplayName("getConsolidatedYearlyBalanceSheet - Empty year returns sheet with zero expenses")
+        void getConsolidatedYearlyBalanceSheet_EmptyYear_ReturnsEmptySheet() {
+            when(userPersistence.getUserById(clerkId)).thenReturn(Optional.of(clerkUser));
+            when(persistence.findBalanceSheetsByYear(2025)).thenReturn(List.of());
+
+            ConsolidatedYearlyBalanceSheet result = expenseTracking.getConsolidatedYearlyBalanceSheet(clerkId, 2025);
+
+            assertEquals(0, result.getNumberOfShows());
+            assertTrue(result.getExpenses().isEmpty());
+            assertEquals(Money.zero(), result.getTotalExpenses());
         }
     }
 }
