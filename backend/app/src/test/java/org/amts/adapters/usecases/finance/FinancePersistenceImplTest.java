@@ -144,6 +144,79 @@ class FinancePersistenceImplTest {
             assertNotNull(sheet.getId());
             assertTrue(sheet.getExpenses().isEmpty());
         }
+
+        @Test
+        @DisplayName("findBalanceSheetsByEvent - Returns list of BalanceSheets")
+        void findBalanceSheetsByEvent_ReturnsList() {
+            UUID sheetId = UUID.randomUUID();
+            UUID clerkId = UUID.randomUUID();
+            UUID showId = UUID.randomUUID();
+            UUID eventId = UUID.randomUUID();
+            LocalDateTime now = LocalDateTime.now();
+
+            MockDataProvider provider = ctx -> {
+                DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
+                String sql = ctx.sql().toLowerCase();
+
+                // Mock balance sheet fetch
+                if (sql.contains("balance_sheet") && !sql.contains("expense")) {
+                    var result = dsl.newResult(BALANCE_SHEET.ID, BALANCE_SHEET.FINANCIAL_CLERK_USER_ID, BALANCE_SHEET.SHOW_ID, BALANCE_SHEET.CREATED_AT);
+                    var record = dsl.newRecord(BALANCE_SHEET.ID, BALANCE_SHEET.FINANCIAL_CLERK_USER_ID, BALANCE_SHEET.SHOW_ID, BALANCE_SHEET.CREATED_AT);
+                    record.values(sheetId, clerkId, showId, now);
+                    result.add(record);
+                    return new MockResult[]{new MockResult(1, result)};
+                }
+
+                // Mock empty expenses for the sheet
+                if (sql.contains("expense")) {
+                    var result = dsl.newResult(EXPENSE.ID, EXPENSE.FINANCIAL_CLERK_USER_ID, EXPENSE.BALANCE_SHEET_ID, EXPENSE.NAME, EXPENSE.DESCRIPTION, EXPENSE.AMOUNT, EXPENSE.CREATED_AT);
+                    return new MockResult[]{new MockResult(0, result)};
+                }
+                
+                return new MockResult[]{new MockResult(0, dsl.newResult())};
+            };
+
+            FinancePersistenceImpl persistence = createPersistence(provider);
+            var result = persistence.findBalanceSheetsByEvent(eventId);
+
+            assertEquals(1, result.size());
+            assertEquals(sheetId, result.get(0).getId());
+        }
+
+        @Test
+        @DisplayName("findBalanceSheetsByYear - Returns list of BalanceSheets in year")
+        void findBalanceSheetsByYear_ReturnsList() {
+            UUID sheetId = UUID.randomUUID();
+            UUID clerkId = UUID.randomUUID();
+            UUID showId = UUID.randomUUID();
+            LocalDateTime now = LocalDateTime.of(2025, 6, 1, 12, 0);
+
+            MockDataProvider provider = ctx -> {
+                DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
+                String sql = ctx.sql().toLowerCase();
+
+                if (sql.contains("balance_sheet") && !sql.contains("expense")) {
+                    var result = dsl.newResult(BALANCE_SHEET.ID, BALANCE_SHEET.FINANCIAL_CLERK_USER_ID, BALANCE_SHEET.SHOW_ID, BALANCE_SHEET.CREATED_AT);
+                    var record = dsl.newRecord(BALANCE_SHEET.ID, BALANCE_SHEET.FINANCIAL_CLERK_USER_ID, BALANCE_SHEET.SHOW_ID, BALANCE_SHEET.CREATED_AT);
+                    record.values(sheetId, clerkId, showId, now);
+                    result.add(record);
+                    return new MockResult[]{new MockResult(1, result)};
+                }
+
+                if (sql.contains("expense")) {
+                    var result = dsl.newResult(EXPENSE.ID, EXPENSE.FINANCIAL_CLERK_USER_ID, EXPENSE.BALANCE_SHEET_ID, EXPENSE.NAME, EXPENSE.DESCRIPTION, EXPENSE.AMOUNT, EXPENSE.CREATED_AT);
+                    return new MockResult[]{new MockResult(0, result)};
+                }
+
+                return new MockResult[]{new MockResult(0, dsl.newResult())};
+            };
+
+            FinancePersistenceImpl persistence = createPersistence(provider);
+            var result = persistence.findBalanceSheetsByYear(2025);
+
+            assertEquals(1, result.size());
+            assertEquals(sheetId, result.get(0).getId());
+        }
     }
 
     @Nested
@@ -231,11 +304,48 @@ class FinancePersistenceImplTest {
         }
 
         @Test
+        @DisplayName("updateExpenseDescription - Executes without throwing")
+        void updateExpenseDescription_ExecutesUpdate() {
+            MockDataProvider provider = ctx -> new MockResult[]{new MockResult(1, null)};
+            FinancePersistenceImpl persistence = createPersistence(provider);
+            assertDoesNotThrow(() -> persistence.updateExpenseDescription(UUID.randomUUID(), "New Description"));
+        }
+
+        @Test
         @DisplayName("updateExpenseAmount - Executes without throwing")
         void updateExpenseAmount_ExecutesUpdate() {
             MockDataProvider provider = ctx -> new MockResult[]{new MockResult(1, null)};
             FinancePersistenceImpl persistence = createPersistence(provider);
             assertDoesNotThrow(() -> persistence.updateExpenseAmount(UUID.randomUUID(), 9999.0));
+        }
+
+        @Test
+        @DisplayName("findExpensesByBalanceSheet - Returns list of expenses")
+        void findExpensesByBalanceSheet_ReturnsList() {
+            UUID expenseId = UUID.randomUUID();
+            UUID clerkId = UUID.randomUUID();
+            UUID sheetId = UUID.randomUUID();
+            LocalDateTime now = LocalDateTime.now();
+
+            MockDataProvider provider = ctx -> {
+                DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
+                var result = dsl.newResult(
+                        EXPENSE.ID, EXPENSE.FINANCIAL_CLERK_USER_ID, EXPENSE.BALANCE_SHEET_ID,
+                        EXPENSE.NAME, EXPENSE.DESCRIPTION, EXPENSE.AMOUNT, EXPENSE.CREATED_AT);
+                var record = dsl.newRecord(
+                        EXPENSE.ID, EXPENSE.FINANCIAL_CLERK_USER_ID, EXPENSE.BALANCE_SHEET_ID,
+                        EXPENSE.NAME, EXPENSE.DESCRIPTION, EXPENSE.AMOUNT, EXPENSE.CREATED_AT);
+                record.values(expenseId, clerkId, sheetId, "Props", "Stage props", 500.0, now);
+                result.add(record);
+                return new MockResult[]{new MockResult(1, result)};
+            };
+
+            FinancePersistenceImpl persistence = createPersistence(provider);
+            var result = persistence.findExpensesByBalanceSheet(sheetId);
+
+            assertEquals(1, result.size());
+            assertEquals(expenseId, result.get(0).getId());
+            assertEquals("Props", result.get(0).getName());
         }
     }
 }
