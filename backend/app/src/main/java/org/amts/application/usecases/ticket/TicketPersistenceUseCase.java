@@ -46,6 +46,10 @@ public interface TicketPersistenceUseCase {
 
     void saveRefundAndMarkTicket(UUID ticketId, TicketRefund refund);
 
+    UUID getAgentForTicket(UUID ticketId);
+
+    void saveRefundAndMarkTicketWithSeatRelease(UUID ticketId, TicketRefund refund, UUID agentUserId);
+
     // Kept for standalone use if needed
     void markTicketAsRefunded(UUID ticketId);
 

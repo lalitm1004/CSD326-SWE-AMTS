@@ -9,6 +9,7 @@ import org.amts.application.usecases.ticket.TicketPersistenceUseCase;
 import org.amts.domain.entities.ticket.Ticket;
 import org.amts.domain.entities.ticket.TicketRefund;
 import static org.amts.jooq.Tables.BOOKING;
+import static org.amts.jooq.Tables.COMMISSION_INVALIDATION;
 import static org.amts.jooq.Tables.COMPLEMENTARY_BOOKING;
 import static org.amts.jooq.Tables.COUPON;
 import static org.amts.jooq.Tables.OFFLINE_BOOKING;
@@ -250,6 +251,45 @@ public class TicketPersistenceImpl implements TicketPersistenceUseCase {
                             org.amts.jooq.enums.Refundtype.valueOf(refund.getType().name()))
                     .set(TICKET_REFUND.CREATED_AT, refund.getCreatedAt())
                     .execute();
+        });
+    }
+
+    @Override
+    public UUID getAgentForTicket(UUID ticketId) {
+        return dsl.select(OFFLINE_BOOKING.SALES_AGENT_USER_ID)
+                .from(TICKET)
+                .join(BOOKING).on(TICKET.BOOKING_ID.eq(BOOKING.ID))
+                .join(OFFLINE_BOOKING).on(BOOKING.ID.eq(OFFLINE_BOOKING.ID))
+                .where(TICKET.ID.eq(ticketId))
+                .fetchOneInto(UUID.class);
+    }
+
+    @Override
+    public void saveRefundAndMarkTicketWithSeatRelease(UUID ticketId, TicketRefund refund, UUID agentUserId) {
+        dsl.transaction(ctx -> {
+            var tx = ctx.dsl();
+
+            tx.update(TICKET)
+                    .set(TICKET.IS_REFUNDED, true)
+                    .setNull(TICKET.SEAT_ID)
+                    .where(TICKET.ID.eq(ticketId))
+                    .execute();
+
+            tx.insertInto(TICKET_REFUND)
+                    .set(TICKET_REFUND.TICKET_ID, refund.getTicketId())
+                    .set(TICKET_REFUND.TYPE,
+                            org.amts.jooq.enums.Refundtype.valueOf(refund.getType().name()))
+                    .set(TICKET_REFUND.CREATED_AT, refund.getCreatedAt())
+                    .execute();
+
+            if (agentUserId != null) {
+                tx.insertInto(COMMISSION_INVALIDATION)
+                        .set(COMMISSION_INVALIDATION.ID, UUID.randomUUID())
+                        .set(COMMISSION_INVALIDATION.TICKET_ID, ticketId)
+                        .set(COMMISSION_INVALIDATION.SALES_AGENT_USER_ID, agentUserId)
+                        .set(COMMISSION_INVALIDATION.CREATED_AT, LocalDateTime.now())
+                        .execute();
+            }
         });
     }
 

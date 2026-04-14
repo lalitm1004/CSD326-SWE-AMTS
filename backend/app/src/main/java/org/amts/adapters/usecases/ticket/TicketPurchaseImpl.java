@@ -183,9 +183,11 @@ public class TicketPurchaseImpl implements TicketPurchaseUseCase {
 
             totalRefund += refund;
 
-            persistence.saveRefundAndMarkTicket(
+            UUID agentUserId = persistence.getAgentForTicket(ticketId);
+            persistence.saveRefundAndMarkTicketWithSeatRelease(
                     ticketId,
-                    new TicketRefund(ticketId, type, LocalDateTime.now())
+                    new TicketRefund(ticketId, type, LocalDateTime.now()),
+                    agentUserId
             );
         }
 
