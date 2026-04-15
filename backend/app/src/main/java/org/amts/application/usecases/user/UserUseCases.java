@@ -3,6 +3,7 @@ package org.amts.application.usecases.user;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.List;
 
 import org.amts.domain.entities.user.Role;
 import org.amts.domain.entities.user.User;
@@ -22,6 +23,17 @@ public class UserUseCases {
 
     public Optional<User> getUserByEmail(String email) {
         return persistence.getUserByEmail(email);
+    }
+
+    public List<User> getAllUsers(UUID actorUserId) {
+        org.amts.adapters.usecases.AuthorizationHelper.getAuthorizedUser(
+                actorUserId,
+                persistence,
+                Role.ROOT,
+                Role.PRESIDENT,
+                Role.AUDITORIUM_SECRETARY
+        );
+        return persistence.getAllUsers();
     }
 
     public void addRoles(UUID actorUserId, UUID targetUserId, Set<Role> roles) {

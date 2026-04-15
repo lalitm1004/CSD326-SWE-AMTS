@@ -68,6 +68,10 @@ public class UserRoleManagementImpl implements UserRoleManagementUseCase {
 
     private void validatePermissions(User actor, Set<Role> roles, UUID actorId) {
 
+        if (actor.hasRole(Role.ROOT)) {
+            return;
+        }
+
         // No relevant authority at all
         if (!actor.hasRolesAny(Role.PRESIDENT, Role.AUDITORIUM_SECRETARY)) {
             throw new UnauthorizedRoleAssignmentException(actorId, roles);
@@ -78,7 +82,7 @@ public class UserRoleManagementImpl implements UserRoleManagementUseCase {
             if (actor.hasRole(Role.PRESIDENT)) {
 
                 // President limited scope
-                if (!(role == Role.PRESIDENT || role == Role.AUDITORIUM_SECRETARY)) {
+                if (role != Role.AUDITORIUM_SECRETARY) {
                     throw new IllegalRoleAssignmentException(actorId, roles);
                 }
 

@@ -2,6 +2,7 @@ package org.amts.adapters.http.controllers;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.List;
 
 import org.amts.application.usecases.sales.SalesTrackingUseCase;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/sales")
 public class SalesTrackingController {
 
+    record RevenueByShowResponse(
+            double totalRevenue
+    ) {}
+
+    record RevenueBreakdownItem(
+            UUID showId,
+            double totalRevenue
+    ) {}
+
+    record RevenueByEventResponse(
+            List<RevenueBreakdownItem> items
+    ) {}
+
+    record CommissionResponse(
+            double commission
+    ) {}
+
     private final SalesTrackingUseCase salesTrackingUseCase;
 
     public SalesTrackingController(SalesTrackingUseCase salesTrackingUseCase) {
@@ -21,31 +39,41 @@ public class SalesTrackingController {
     }
 
     @GetMapping("/revenue/show")
-    public ResponseEntity<Double> getRevenueByShow(
+    public ResponseEntity<RevenueByShowResponse> getRevenueByShow(
             @RequestParam UUID actorUserId,
             @RequestParam UUID showId) {
-        return ResponseEntity.ok(salesTrackingUseCase.getRevenueByShow(actorUserId, showId));
+        return ResponseEntity.ok(new RevenueByShowResponse(
+                salesTrackingUseCase.getRevenueByShow(actorUserId, showId)
+        ));
     }
 
     @GetMapping("/revenue/event")
-    public ResponseEntity<Map<UUID, Double>> getRevenueByEvent(
+    public ResponseEntity<RevenueByEventResponse> getRevenueByEvent(
             @RequestParam UUID actorUserId,
             @RequestParam UUID eventId) {
-        return ResponseEntity.ok(salesTrackingUseCase.getRevenueByEvent(actorUserId, eventId));
+        Map<UUID, Double> breakdown = salesTrackingUseCase.getRevenueByEvent(actorUserId, eventId);
+        List<RevenueBreakdownItem> items = breakdown.entrySet().stream()
+                .map(entry -> new RevenueBreakdownItem(entry.getKey(), entry.getValue()))
+                .toList();
+        return ResponseEntity.ok(new RevenueByEventResponse(items));
     }
 
     @GetMapping("/commission/agent/event")
-    public ResponseEntity<Double> getOfflineCommissionByAgentForEvent(
+    public ResponseEntity<CommissionResponse> getOfflineCommissionByAgentForEvent(
             @RequestParam UUID actorUserId,
             @RequestParam UUID agentId,
             @RequestParam UUID eventId) {
-        return ResponseEntity.ok(salesTrackingUseCase.getOfflineCommissionByAgentForEvent(actorUserId, agentId, eventId));
+        return ResponseEntity.ok(new CommissionResponse(
+                salesTrackingUseCase.getOfflineCommissionByAgentForEvent(actorUserId, agentId, eventId)
+        ));
     }
 
     @GetMapping("/commission/agent")
-    public ResponseEntity<Double> getOfflineCommissionByAgent(
+    public ResponseEntity<CommissionResponse> getOfflineCommissionByAgent(
             @RequestParam UUID actorUserId,
             @RequestParam UUID agentId) {
-        return ResponseEntity.ok(salesTrackingUseCase.getOfflineCommissionByAgent(actorUserId, agentId));
+        return ResponseEntity.ok(new CommissionResponse(
+                salesTrackingUseCase.getOfflineCommissionByAgent(actorUserId, agentId)
+        ));
     }
 }

@@ -5,12 +5,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.amts.application.exceptions.PersistenceException;
 import org.amts.application.usecases.ticket.TicketPersistenceUseCase;
+import org.amts.domain.entities.booking.BookingType;
+import org.amts.domain.entities.booking.SpectatorBookingSummary;
 import org.amts.domain.entities.ticket.Ticket;
 import org.amts.domain.entities.ticket.TicketRefund;
+import org.amts.domain.valueobjects.Money;
 import static org.amts.jooq.Tables.BOOKING;
 import static org.amts.jooq.Tables.COMMISSION_INVALIDATION;
-import static org.amts.jooq.Tables.COMPLEMENTARY_BOOKING;
 import static org.amts.jooq.Tables.COUPON;
 import static org.amts.jooq.Tables.OFFLINE_BOOKING;
 import static org.amts.jooq.Tables.ONLINE_BOOKING;
@@ -58,6 +61,51 @@ public class TicketPersistenceImpl implements TicketPersistenceUseCase {
                         record.getCode(),
                         record.getIsRefunded(),
                         record.getCreatedAt()
+                ));
+    }
+
+    @Override
+    public List<SpectatorBookingSummary> getBookingsBySpectatorUserId(UUID spectatorUserId) {
+        var refundedTicketCount = org.jooq.impl.DSL.sum(
+                org.jooq.impl.DSL.when(TICKET.IS_REFUNDED.isTrue(), 1).otherwise(0)
+        ).coerce(Integer.class);
+
+        return dsl.select(
+                    BOOKING.ID,
+                    BOOKING.SHOW_ID,
+                    BOOKING.CODE,
+                    BOOKING.TYPE,
+                    BOOKING.AMOUNT,
+                    BOOKING.CREATED_AT,
+                    org.jooq.impl.DSL.count(TICKET.ID).coerce(Integer.class).as("ticket_count"),
+                    refundedTicketCount.as("refunded_ticket_count")
+                )
+                .from(BOOKING)
+                .leftJoin(ONLINE_BOOKING).on(ONLINE_BOOKING.ID.eq(BOOKING.ID))
+                .leftJoin(OFFLINE_BOOKING).on(OFFLINE_BOOKING.ID.eq(BOOKING.ID))
+                .leftJoin(TICKET).on(TICKET.BOOKING_ID.eq(BOOKING.ID))
+                .where(
+                        ONLINE_BOOKING.SPECTATOR_USER_ID.eq(spectatorUserId)
+                                .or(OFFLINE_BOOKING.SPECTATOR_USER_ID.eq(spectatorUserId))
+                )
+                .groupBy(
+                        BOOKING.ID,
+                        BOOKING.SHOW_ID,
+                        BOOKING.CODE,
+                        BOOKING.TYPE,
+                        BOOKING.AMOUNT,
+                        BOOKING.CREATED_AT
+                )
+                .orderBy(BOOKING.CREATED_AT.desc())
+                .fetch(record -> new SpectatorBookingSummary(
+                        record.get(BOOKING.ID),
+                        record.get(BOOKING.SHOW_ID),
+                        record.get(BOOKING.CODE),
+                        BookingType.valueOf(record.get(BOOKING.TYPE).getLiteral()),
+                        record.get(BOOKING.AMOUNT) == null ? null : Money.of(record.get(BOOKING.AMOUNT).doubleValue()),
+                        record.get(BOOKING.CREATED_AT),
+                        record.get("ticket_count", Integer.class),
+                        record.get("refunded_ticket_count", Integer.class)
                 ));
     }
 
@@ -156,46 +204,18 @@ public class TicketPersistenceImpl implements TicketPersistenceUseCase {
     }
 
     @Override
-    public void saveComplementaryBookingWithTickets(
-            UUID bookingId,
-            UUID showId,
-            UUID createdByUserId,
-            List<Ticket> tickets
-    ) {
-        dsl.transaction(ctx -> {
-            var tx = ctx.dsl();
-
-            tx.insertInto(BOOKING)
-                    .set(BOOKING.ID, bookingId)
-                    .set(BOOKING.SHOW_ID, showId)
-                    .set(BOOKING.CODE, UUID.randomUUID().toString())
-                    .set(BOOKING.TYPE, org.amts.jooq.enums.Bookingtypeenum.COMPLEMENTARY)
-                    .set(BOOKING.AMOUNT, 0.0)
-                    .set(BOOKING.CREATED_AT, LocalDateTime.now())
-                    .execute();
-
-            tx.insertInto(COMPLEMENTARY_BOOKING)
-                    .set(COMPLEMENTARY_BOOKING.ID, bookingId)
-                    .set(COMPLEMENTARY_BOOKING.CREATED_BY_USER_ID, createdByUserId)
-                    .execute();
-
-            var queries = tickets.stream()
-                    .map(ticket -> tx.insertInto(TICKET)
-                            .set(TICKET.ID, ticket.getId())
-                            .set(TICKET.BOOKING_ID, ticket.getBookingId())
-                            .set(TICKET.SHOW_ID, ticket.getShowId())
-                            .set(TICKET.SEAT_ID, ticket.getSeatId())
-                            .set(TICKET.CODE, ticket.getCode())
-                            .set(TICKET.IS_REFUNDED, ticket.isRefunded())
-                            .set(TICKET.CREATED_AT, ticket.getCreatedAt()))
-                    .toArray(org.jooq.Query[]::new);
-
-            tx.batch(queries).execute();
-        });
-    }
-
-    @Override
     public String saveCoupon(UUID spectatorUserId, UUID showId) {
+        boolean alreadyHasCoupon = dsl.fetchExists(
+                dsl.selectOne()
+                        .from(COUPON)
+                        .where(COUPON.SPECTATOR_USER_ID.eq(spectatorUserId))
+                        .and(COUPON.SHOW_ID.eq(showId))
+        );
+
+        if (alreadyHasCoupon) {
+            throw new PersistenceException("You can only purchase one coupon per show");
+        }
+
         String code = String.valueOf((long) (Math.random() * 1_000_000_0000L));
 
         dsl.transaction(ctx -> {

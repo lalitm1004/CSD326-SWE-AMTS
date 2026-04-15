@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.amts.domain.entities.booking.SpectatorBookingSummary;
 import org.amts.domain.entities.ticket.Ticket;
 import org.amts.domain.entities.ticket.TicketRefund;
 
@@ -12,6 +13,8 @@ public interface TicketPersistenceUseCase {
     Optional<Ticket> getTicketById(UUID ticketId);
 
     List<Ticket> getTicketsByBookingId(UUID bookingId);
+
+    List<SpectatorBookingSummary> getBookingsBySpectatorUserId(UUID spectatorUserId);
 
     UUID fetchCouponId(UUID spectatorUserId, String couponCode);
 
@@ -30,13 +33,6 @@ public interface TicketPersistenceUseCase {
             UUID spectatorUserId,
             UUID agentUserId,
             double total,
-            List<Ticket> tickets
-    );
-
-    void saveComplementaryBookingWithTickets(
-            UUID bookingId,
-            UUID showId,
-            UUID createdByUserId,
             List<Ticket> tickets
     );
 

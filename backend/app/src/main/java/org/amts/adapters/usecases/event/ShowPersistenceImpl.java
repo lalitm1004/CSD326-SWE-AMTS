@@ -2,6 +2,7 @@ package org.amts.adapters.usecases.event;
 
 import static org.amts.jooq.Tables.SEAT;
 import static org.amts.jooq.Tables.SHOW;
+import static org.amts.jooq.Tables.TICKET;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import org.amts.domain.entities.seat.SeatType;
 import org.amts.domain.valueobjects.Money;
 import org.amts.jooq.enums.Seatdesignationenum;
 import org.amts.jooq.tables.records.ShowRecord;
+import org.jooq.impl.DSL;
 import org.jooq.DSLContext;
 
 public class ShowPersistenceImpl implements ShowPersistenceUseCase {
@@ -189,14 +191,26 @@ public class ShowPersistenceImpl implements ShowPersistenceUseCase {
 
     @Override
     public List<Seat> getSeatsByShow(UUID showId) {
-        return dsl.selectFrom(SEAT)
+        return dsl.select(
+                    SEAT.ID,
+                    SEAT.NUMBER,
+                    SEAT.TYPE,
+                    SEAT.DESIGNATION,
+                    TICKET.ID.as("active_ticket_id")
+                )
+            .from(SEAT)
+            .leftJoin(TICKET)
+                .on(TICKET.SHOW_ID.eq(showId))
+                .and(TICKET.SEAT_ID.eq(SEAT.ID))
+                .and(TICKET.IS_REFUNDED.eq(false))
             .orderBy(SEAT.NUMBER)
             .fetch()
             .map(r -> new Seat(
-                r.getId(),
-                r.getNumber(),
-                SeatType.valueOf(r.getType().name()),
-                SeatDesignation.valueOf(r.getDesignation().name())
+                r.get(SEAT.ID),
+                r.get(SEAT.NUMBER),
+                SeatType.valueOf(r.get(SEAT.TYPE).name()),
+                SeatDesignation.valueOf(r.get(SEAT.DESIGNATION).name()),
+                r.get("active_ticket_id") == null
             ));
     }
 

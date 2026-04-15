@@ -7,11 +7,13 @@ import org.amts.domain.entities.user.User;
 import org.amts.jooq.enums.Roleenum;
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.Result;
-
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import static org.amts.jooq.Tables.USER_PROFILE;
@@ -53,6 +55,40 @@ public class UserPersistenceImpl implements UserPersistenceUseCase {
                 .fetch();
 
         return mapToUser(result);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        var profiles = dsl.select(
+                USER_PROFILE.ID,
+                USER_PROFILE.EMAIL,
+                USER_PROFILE.CREATED_AT)
+                .from(USER_PROFILE)
+                .orderBy(USER_PROFILE.EMAIL.asc())
+                .fetch();
+
+        Map<UUID, Set<Role>> rolesByUserId = dsl.select(
+                USER_ROLE_ASSIGNMENT.USER_ID,
+                USER_ROLE_ASSIGNMENT.ROLE)
+                .from(USER_ROLE_ASSIGNMENT)
+                .fetchGroups(
+                        USER_ROLE_ASSIGNMENT.USER_ID,
+                        USER_ROLE_ASSIGNMENT.ROLE)
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .map(role -> Role.valueOf(role.name()))
+                                .collect(Collectors.toCollection(HashSet::new))
+                ));
+
+        return profiles.map(profile -> new User(
+                profile.get(USER_PROFILE.ID),
+                profile.get(USER_PROFILE.EMAIL),
+                rolesByUserId.getOrDefault(profile.get(USER_PROFILE.ID), Set.of(Role.SPECTATOR)),
+                profile.get(USER_PROFILE.CREATED_AT)
+        ));
     }
 
     @Override
@@ -118,7 +154,7 @@ public class UserPersistenceImpl implements UserPersistenceUseCase {
                 .fetchInto(UUID.class);
     }
 
-    private Optional<User> mapToUser(Result<? extends Record> result) {
+    private Optional<User> mapToUser(org.jooq.Result<? extends Record> result) {
         if (result.isEmpty()) {
             return Optional.empty();
         }

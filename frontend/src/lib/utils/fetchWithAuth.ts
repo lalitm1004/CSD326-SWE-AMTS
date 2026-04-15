@@ -1,5 +1,5 @@
+import { env } from "$env/dynamic/public";
 import { get } from "svelte/store";
-import { PUBLIC_BACKEND_URL } from "$env/static/public";
 import { SessionStore } from "$lib/stores/SupaStore";
 
 interface FetchOptions extends RequestInit {
@@ -19,18 +19,16 @@ interface FetchOptions extends RequestInit {
  */
 export const fetchWithAuth = async (route: string, options: FetchOptions = {}): Promise<Response> => {
     const session = get(SessionStore);
-    if (!session) {
-        console.warn('[fetchWithAuth] No session found, sending empty Bearer token');
-    }
-
-    const cleanedUrl = PUBLIC_BACKEND_URL.replace(/\/+$/, "");
+    const cleanedUrl = (env.PUBLIC_BACKEND_URL ?? "").replace(/\/+$/, "");
     const cleanedRoute = route.replace(/^\/+/, "");
+    const headers: Record<string, string> = { ...options.headers };
+
+    if (session?.access_token) {
+        headers.Authorization = `Bearer ${session.access_token}`;
+    }
 
     return fetch(`${cleanedUrl}/${cleanedRoute}`, {
         ...options,
-        headers: {
-            ...options.headers,
-            'Authorization': `Bearer ${session?.access_token}`
-        }
+        headers
     });
 }

@@ -1,1 +1,102 @@
 @import 'tailwindcss';
+
+@theme {
+    /* Backgrounds */
+    --color-canvas: #0d0d0f;
+    --color-surface: #161618;
+    --color-raised: #1e1e21;
+
+    /* Borders */
+    --color-border: #2e2e33;
+    --color-border-gold: #a07840;
+
+    /* Gold palette */
+    --color-gold: #c9954c;
+    --color-gold-light: #e8b96f;
+    --color-gold-dim: #7a5a2a;
+    --color-amber: #d97b3a;
+
+    /* Text */
+    --color-text: #f0ede8;
+    --color-text-muted: #8a8680;
+    --color-text-on-gold: #1a1208;
+
+    /* Status */
+    --color-success: #4a9068;
+    --color-error: #c45a45;
+    --color-warning: #c9864c;
+    --color-info: #4a7896;
+
+    /* Fonts */
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'DM Mono', 'Courier New', monospace;
+}
+
+/* Base styles */
+html {
+    background-color: var(--color-canvas);
+    color: var(--color-text);
+}
+
+body {
+    font-family: var(--font-body);
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ornamental corner decoration */
+.corner-ornament {
+    position: relative;
+}
+.corner-ornament::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 12px;
+    height: 12px;
+    border-top: 1px solid var(--color-gold);
+    border-left: 1px solid var(--color-gold);
+    pointer-events: none;
+}
+
+/* Gold shimmer animation for skeleton loading */
+@keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+
+.skeleton-shimmer {
+    background: linear-gradient(
+        90deg,
+        var(--color-surface) 25%,
+        var(--color-raised) 50%,
+        var(--color-surface) 75%
+    );
+    background-size: 800px 100%;
+    animation: shimmer 1.6s infinite;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--color-canvas);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-gold);
+}
+
+/* Focus ring */
+:focus-visible {
+    outline: 1px solid var(--color-gold);
+    outline-offset: 2px;
+}
