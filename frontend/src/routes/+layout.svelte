@@ -1,40 +1,47 @@
 <script lang="ts">
-	import "$lib/styles/globals.css";
+    import "$lib/styles/globals.css";
 
-	import favicon from "$lib/assets/favicon.svg";
-	import { onMount } from "svelte";
-	import { invalidateAll } from "$app/navigation";
-	import {
-		SessionStore,
-		SupaStore,
-		UserStore,
-	} from "$lib/stores/SupaStore.js";
+    import favicon from "$lib/assets/favicon.svg";
+    import { onMount } from "svelte";
+    import { invalidate } from "$app/navigation";
+    import {
+        SessionStore,
+        SupaStore,
+        UserStore,
+    } from "$lib/stores/SupaStore.js";
+    import ToastContainer from "$lib/components/ui/ToastContainer.svelte";
 
-	let { data, children } = $props();
-	let { supabase, session, user } = $derived(data);
+    let { data, children } = $props();
+    let { supabase, session, user } = $derived(data);
 
-	onMount(() => {
-		const {
-			data: { subscription },
-		} = supabase.auth.onAuthStateChange((event, newSession) => {
-			if (
-				newSession?.expires_at !== session?.expires_at ||
-				event === "SIGNED_OUT"
-			) {
-				invalidateAll();
-			}
-		});
+    $effect(() => {
+        SupaStore.set(supabase);
+        UserStore.set(user);
+        SessionStore.set(session);
+    });
 
-		SupaStore.set(supabase);
-		UserStore.set(user);
-		SessionStore.set(session);
+    onMount(() => {
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((event, newSession) => {
+            SessionStore.set(newSession);
+            UserStore.set(newSession?.user ?? null);
 
-		return () => subscription.unsubscribe();
-	});
+            if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED" || event === "SIGNED_OUT") {
+                invalidate("supabase:auth");
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    });
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+    <link rel="icon" href={favicon} />
 </svelte:head>
 
-{@render children()}
+<div class="font-['DM_Sans'] bg-[var(--color-canvas)] text-[var(--color-text)] min-h-dvh">
+    {@render children()}
+</div>
+
+<ToastContainer />

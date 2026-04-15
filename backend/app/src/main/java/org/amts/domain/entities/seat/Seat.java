@@ -9,11 +9,17 @@ public class Seat {
     private final String number;
     private final SeatType type;
     private final SeatDesignation designation;
+    private final boolean available;
 
     public Seat(UUID id, String number, SeatType type, SeatDesignation designation) {
+        this(id, number, type, designation, true);
+    }
+
+    public Seat(UUID id, String number, SeatType type, SeatDesignation designation, boolean available) {
         this.id = Objects.requireNonNull(id, "Seat id must not be null");
         this.type = Objects.requireNonNull(type, "Seat type must not be null");
         this.designation = Objects.requireNonNull(designation, "Seat designation must not be null");
+        this.available = available;
 
         Objects.requireNonNull(number, "Seat number must not be null");
         if (number.isBlank()) {
@@ -38,6 +44,10 @@ public class Seat {
         return designation;
     }
 
+    public boolean isAvailable() {
+        return available;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -55,6 +65,6 @@ public class Seat {
 
     @Override
     public String toString() {
-        return "Seat{id=" + id + ", number='" + number + "', type=" + type + ", designation=" + designation + "}";
+        return "Seat{id=" + id + ", number='" + number + "', type=" + type + ", designation=" + designation + ", available=" + available + "}";
     }
 }

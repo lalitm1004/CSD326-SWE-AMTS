@@ -3,22 +3,26 @@ package org.amts.application.usecases.ticket;
 import java.util.List;
 import java.util.UUID;
 
+import org.amts.adapters.usecases.AuthorizationHelper;
+import org.amts.application.usecases.user.UserPersistenceUseCase;
+import org.amts.domain.entities.booking.SpectatorBookingSummary;
 import org.amts.domain.entities.ticket.Ticket;
+import org.amts.domain.entities.user.Role;
 
 public class TicketUseCase {
 
     private final TicketPersistenceUseCase persistence;
     private final TicketPurchaseUseCase purchaseUseCase;
-    private final ComplementaryAllocationUseCase complementaryAllocation;
+    private final UserPersistenceUseCase userPersistence;
 
     public TicketUseCase(
             TicketPersistenceUseCase persistence,
             TicketPurchaseUseCase purchaseUseCase,
-            ComplementaryAllocationUseCase complementaryAllocation) {
+            UserPersistenceUseCase userPersistence) {
 
         this.persistence = persistence;
         this.purchaseUseCase = purchaseUseCase;
-        this.complementaryAllocation = complementaryAllocation;
+        this.userPersistence = userPersistence;
     }
 
     public List<Ticket> purchaseTickets(
@@ -67,7 +71,8 @@ public class TicketUseCase {
         return persistence.getTicketsByBookingId(bookingId);
     }
 
-    public List<Ticket> allocateComplementaryTickets(UUID allocatedByUserId, UUID showId, List<UUID> seatIds) {
-        return complementaryAllocation.allocateComplementaryTickets(allocatedByUserId, showId, seatIds);
+    public List<SpectatorBookingSummary> getBookingsBySpectatorUserId(UUID spectatorUserId) {
+        AuthorizationHelper.getAuthorizedUser(spectatorUserId, userPersistence, Role.SPECTATOR);
+        return persistence.getBookingsBySpectatorUserId(spectatorUserId);
     }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.amts.application.usecases.ticket.TicketUseCase;
+import org.amts.domain.entities.booking.SpectatorBookingSummary;
 import org.amts.domain.entities.ticket.Ticket;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,10 +38,12 @@ public class TicketController {
             List<UUID> ticketIds
     ) {}
 
-    record AllocateComplementaryRequest(
-            UUID allocatedByUserId,
-            UUID showId,
-            List<UUID> seatIds
+    record PurchaseCouponResponse(
+            String code
+    ) {}
+
+    record CancelTicketsResponse(
+            double refund
     ) {}
 
     @PostMapping("/purchase")
@@ -68,21 +71,21 @@ public class TicketController {
     }
 
     @PostMapping("/coupon")
-    public ResponseEntity<String> purchaseCoupon(
+    public ResponseEntity<PurchaseCouponResponse> purchaseCoupon(
             @RequestParam UUID spectatorUserId,
             @RequestParam UUID showId) {
         String code = ticketUseCases.purchaseCoupon(spectatorUserId, showId);
-        return ResponseEntity.ok(code);
+        return ResponseEntity.ok(new PurchaseCouponResponse(code));
     }
 
     @PostMapping("/cancel")
-    public ResponseEntity<Double> cancelTickets(
+    public ResponseEntity<CancelTicketsResponse> cancelTickets(
             @RequestBody CancelTicketsRequest request) {
         double refund = ticketUseCases.cancelTickets(
                 request.spectatorUserId(),
                 request.ticketIds()
         );
-        return ResponseEntity.ok(refund);
+        return ResponseEntity.ok(new CancelTicketsResponse(refund));
     }
 
     @GetMapping
@@ -93,14 +96,11 @@ public class TicketController {
         );
     }
 
-    @PostMapping("/complimentary")
-    public ResponseEntity<List<Ticket>> allocateComplementaryTickets(
-            @RequestBody AllocateComplementaryRequest request) {
-        List<Ticket> tickets = ticketUseCases.allocateComplementaryTickets(
-                request.allocatedByUserId(),
-                request.showId(),
-                request.seatIds()
+    @GetMapping("/bookings")
+    public ResponseEntity<List<SpectatorBookingSummary>> getBookingsBySpectatorUserId(
+            @RequestParam UUID spectatorUserId) {
+        return ResponseEntity.ok(
+                ticketUseCases.getBookingsBySpectatorUserId(spectatorUserId)
         );
-        return ResponseEntity.ok(tickets);
     }
 }

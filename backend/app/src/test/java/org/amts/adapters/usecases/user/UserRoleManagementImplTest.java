@@ -88,16 +88,14 @@ class UserRoleManagementImplTest {
         @DisplayName("President Permissions")
         class PresidentPermissions {
             @Test
-            @DisplayName("President - Can assign PRESIDENT role")
-            void president_AssignsPresident_Success() {
+            @DisplayName("President - Cannot assign PRESIDENT role")
+            void president_AssignsPresident_ThrowsIllegal() {
                 User actor = new User(actorId, "actor@test.com", Set.of(Role.PRESIDENT), LocalDateTime.now());
                 when(persistence.getUserById(actorId)).thenReturn(Optional.of(actor));
                 when(persistence.getUserById(targetId)).thenReturn(Optional.of(target));
 
-                roleManagement.addRoles(actorId, targetId, new HashSet<>(Set.of(Role.PRESIDENT)));
-
-                Set<Role> expectedRoles = EnumSet.of(Role.SPECTATOR, Role.PRESIDENT);
-                verify(persistence).updateUserRoles(eq(targetId), eq(expectedRoles));
+                assertThrows(IllegalRoleAssignmentException.class,
+                        () -> roleManagement.addRoles(actorId, targetId, Set.of(Role.PRESIDENT)));
             }
 
             @Test
@@ -150,6 +148,47 @@ class UserRoleManagementImplTest {
 
                 assertThrows(IllegalRoleAssignmentException.class,
                         () -> roleManagement.addRoles(actorId, targetId, Set.of(Role.PRESIDENT)));
+            }
+
+            @Test
+            @DisplayName("Secretary - Cannot assign AUDITORIUM_SECRETARY role")
+            void secretary_AssignsSecretary_ThrowsIllegal() {
+                User actor = new User(actorId, "actor@test.com", Set.of(Role.AUDITORIUM_SECRETARY), LocalDateTime.now());
+                when(persistence.getUserById(actorId)).thenReturn(Optional.of(actor));
+                when(persistence.getUserById(targetId)).thenReturn(Optional.of(target));
+
+                assertThrows(IllegalRoleAssignmentException.class,
+                        () -> roleManagement.addRoles(actorId, targetId, Set.of(Role.AUDITORIUM_SECRETARY)));
+            }
+        }
+
+        @Nested
+        @DisplayName("Root Permissions")
+        class RootPermissions {
+            @Test
+            @DisplayName("Root - Can assign SHOW_MANAGER role")
+            void root_AssignsManager_Success() {
+                User actor = new User(actorId, "actor@test.com", Set.of(Role.ROOT), LocalDateTime.now());
+                when(persistence.getUserById(actorId)).thenReturn(Optional.of(actor));
+                when(persistence.getUserById(targetId)).thenReturn(Optional.of(target));
+
+                roleManagement.addRoles(actorId, targetId, new HashSet<>(Set.of(Role.SHOW_MANAGER)));
+
+                Set<Role> expectedRoles = EnumSet.of(Role.SPECTATOR, Role.SHOW_MANAGER);
+                verify(persistence).updateUserRoles(eq(targetId), eq(expectedRoles));
+            }
+
+            @Test
+            @DisplayName("Root - Can assign AUDITORIUM_SECRETARY role")
+            void root_AssignsSecretary_Success() {
+                User actor = new User(actorId, "actor@test.com", Set.of(Role.ROOT), LocalDateTime.now());
+                when(persistence.getUserById(actorId)).thenReturn(Optional.of(actor));
+                when(persistence.getUserById(targetId)).thenReturn(Optional.of(target));
+
+                roleManagement.addRoles(actorId, targetId, new HashSet<>(Set.of(Role.AUDITORIUM_SECRETARY)));
+
+                Set<Role> expectedRoles = EnumSet.of(Role.SPECTATOR, Role.AUDITORIUM_SECRETARY);
+                verify(persistence).updateUserRoles(eq(targetId), eq(expectedRoles));
             }
         }
 

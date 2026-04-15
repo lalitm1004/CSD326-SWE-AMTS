@@ -15,6 +15,10 @@ import java.util.UUID;
 @RequestMapping("/api/user")
 public class UserController {
 
+    record UserIdsResponse(
+            java.util.List<UUID> userIds
+    ) {}
+
     private final UserUseCases userUseCases;
 
     public UserController(UserUseCases userUseCases) {
@@ -40,15 +44,21 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/clerks")
-    public ResponseEntity<java.util.List<UUID>> getAllFinancialClerks(
+    @GetMapping("/all")
+    public ResponseEntity<java.util.List<User>> getAllUsers(
             @RequestParam UUID actorUserId) {
-        return ResponseEntity.ok(userUseCases.getAllFinancialClerks(actorUserId));
+        return ResponseEntity.ok(userUseCases.getAllUsers(actorUserId));
+    }
+
+    @GetMapping("/clerks")
+    public ResponseEntity<UserIdsResponse> getAllFinancialClerks(
+            @RequestParam UUID actorUserId) {
+        return ResponseEntity.ok(new UserIdsResponse(userUseCases.getAllFinancialClerks(actorUserId)));
     }
 
     @GetMapping("/sales-agents")
-    public ResponseEntity<java.util.List<UUID>> getAllSalesAgents(
+    public ResponseEntity<UserIdsResponse> getAllSalesAgents(
             @RequestParam UUID actorUserId) {
-        return ResponseEntity.ok(userUseCases.getAllSalesAgents(actorUserId));
+        return ResponseEntity.ok(new UserIdsResponse(userUseCases.getAllSalesAgents(actorUserId)));
     }
 }
