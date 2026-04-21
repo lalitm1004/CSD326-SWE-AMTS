@@ -7,11 +7,11 @@
     const isAdmin = $derived($rolesStore.some(r => adminRoles.includes(r)));
     const isLoggedIn = $derived(!!$SessionStore);
 
-    const links = [
+    const links = $derived([
         { href: '/events', label: 'Events' },
         { href: '/tickets', label: 'My Tickets' },
-        { href: '/coupons', label: 'Coupons' },
-    ];
+        ...($SessionStore ? [{ href: '/coupons', label: 'Coupons' }] : []),
+    ]);
 </script>
 
 <header class="fixed top-0 left-0 right-0 z-40 border-b border-[var(--color-border)] bg-[var(--color-canvas)]/90 backdrop-blur-md">

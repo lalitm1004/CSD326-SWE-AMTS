@@ -185,8 +185,18 @@ public class ShowManagementImpl implements ShowManagementUseCase {
     }
 
     @Override
+    public Optional<Show> getPublicShowByID(UUID showId) {
+        return showPersistence.getShowByID(showId);
+    }
+
+    @Override
     public Optional<ArrayList<Show>> getShowsByEvent(UUID userId, UUID eventId) {
         AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
+        return showPersistence.getShowsByEvent(eventId);
+    }
+
+    @Override
+    public Optional<ArrayList<Show>> getPublicShowsByEvent(UUID eventId) {
         return showPersistence.getShowsByEvent(eventId);
     }
 

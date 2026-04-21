@@ -1,5 +1,7 @@
 <script lang="ts">
     import type { ShowDto } from '$lib/types/api/event.types';
+    import { SessionStore } from '$lib/stores/SupaStore';
+    import { toastStore } from '$lib/stores/toast.store';
 
     interface Props {
         show: ShowDto;
@@ -14,9 +16,15 @@
 
     const formatPrice = (p: number | null | undefined) =>
         p != null ? `₹${p.toLocaleString('en-IN')}` : 'TBA';
+
+    function handleClick(event: MouseEvent) {
+        if ($SessionStore) return;
+        event.preventDefault();
+        toastStore.add('warning', 'You need to be logged in to view show details.');
+    }
 </script>
 
-<a href="/events/{eventId}/shows/{show.id}" class="group flex items-start gap-4 p-5 bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-border-gold)] transition-all">
+<a href="/events/{eventId}/shows/{show.id}" onclick={handleClick} class="group flex items-start gap-4 p-5 bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-border-gold)] transition-all">
     {#if show.thumbnailUrl}
         <div class="w-16 h-16 shrink-0 overflow-hidden bg-[var(--color-raised)]">
             <img src={show.thumbnailUrl} alt={show.name} class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />

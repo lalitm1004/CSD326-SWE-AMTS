@@ -4,14 +4,15 @@ import { fetchShow, fetchShowSeats } from '$lib/server/backend';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
     const userId = locals.user?.id;
-    const [show, seats] = await Promise.all([
-        fetchShow(locals, params.showId, userId),
-        fetchShowSeats(locals, params.showId, userId)
-    ]);
+    const show = await fetchShow(locals, params.showId, userId);
 
     if (!show) {
         error(404, 'Show not found');
     }
+
+    const seats = userId
+        ? await fetchShowSeats(locals, params.showId, userId)
+        : [];
 
     return { show, seats, eventId: params.eventId };
 };

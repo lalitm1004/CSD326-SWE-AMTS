@@ -47,7 +47,11 @@ public interface ShowManagementUseCase {
 
     Optional<Show> getShowByID(UUID userId, UUID showId);
 
+    Optional<Show> getPublicShowByID(UUID showId);
+
     Optional<ArrayList<Show>> getShowsByEvent(UUID userId, UUID eventId);
+
+    Optional<ArrayList<Show>> getPublicShowsByEvent(UUID eventId);
 
     void updateSeatDesignation(UUID userId, UUID seatId, SeatDesignation designation);
 

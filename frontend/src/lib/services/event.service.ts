@@ -67,13 +67,19 @@ export const updateEventDescription = async (eventId: string, description: strin
 };
 
 export const getShowsByEvent = async (eventId: string): Promise<ShowDto[]> => {
-    const res = await json('api/show/by-event', { userId: get(UserStore)?.id, eventId });
+    const userId = get(UserStore)?.id;
+    const route = userId ? 'api/show/by-event' : 'api/show/public/by-event';
+    const body = userId ? { userId, eventId } : { eventId };
+    const res = await json(route, body);
+    if (res.status === 404) return [];
     if (!res.ok) throw new Error(`Failed to fetch shows: ${res.status}`);
     return z.array(ShowDtoSchema).parse(await res.json());
 };
 
 export const getShowsByEventForUser = async (eventId: string, userId?: string): Promise<ShowDto[]> => {
-    const res = await json('api/show/by-event', { userId, eventId });
+    const route = userId ? 'api/show/by-event' : 'api/show/public/by-event';
+    const body = userId ? { userId, eventId } : { eventId };
+    const res = await json(route, body);
     if (res.status === 404) return [];
     if (!res.ok) throw new Error(`Failed to fetch shows: ${res.status}`);
     return z.array(ShowDtoSchema).parse(await res.json());

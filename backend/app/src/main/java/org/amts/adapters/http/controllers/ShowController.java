@@ -100,8 +100,16 @@ public class ShowController {
             UUID showId
     ) {}
 
+    record GetPublicShowRequest(
+            UUID showId
+    ) {}
+
     record GetShowsByEventRequest(
             UUID userId,
+            UUID eventId
+    ) {}
+
+    record GetPublicShowsByEventRequest(
             UUID eventId
     ) {}
 
@@ -201,9 +209,23 @@ public class ShowController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PostMapping("/public/get")
+    public ResponseEntity<Show> getPublicShowById(@RequestBody GetPublicShowRequest request) {
+        return showManagement.getPublicShowByID(request.showId())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @PostMapping("/by-event")
     public ResponseEntity<ArrayList<Show>> getShowsByEvent(@RequestBody GetShowsByEventRequest request) {
         return showManagement.getShowsByEvent(request.userId(), request.eventId())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/public/by-event")
+    public ResponseEntity<ArrayList<Show>> getPublicShowsByEvent(@RequestBody GetPublicShowsByEventRequest request) {
+        return showManagement.getPublicShowsByEvent(request.eventId())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

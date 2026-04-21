@@ -51,19 +51,23 @@ export async function fetchAllEvents(locals: Locals, userId?: string): Promise<E
 }
 
 export async function fetchShowsByEvent(locals: Locals, eventId: string, userId?: string): Promise<ShowDto[]> {
-    const shows = await backendJson<unknown>(locals, 'api/show/by-event', {
+    const path = userId ? 'api/show/by-event' : 'api/show/public/by-event';
+    const body = userId ? { userId, eventId } : { eventId };
+    const shows = await backendJson<unknown>(locals, path, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, eventId })
+        body: JSON.stringify(body)
     });
     return z.array(ShowDtoSchema).parse(shows);
 }
 
 export async function fetchShow(locals: Locals, showId: string, userId?: string): Promise<ShowDto | null> {
-    const show = await backendJsonOrNull<unknown>(locals, 'api/show/get', {
+    const path = userId ? 'api/show/get' : 'api/show/public/get';
+    const body = userId ? { userId, showId } : { showId };
+    const show = await backendJsonOrNull<unknown>(locals, path, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, showId })
+        body: JSON.stringify(body)
     });
     return show ? ShowDtoSchema.parse(show) : null;
 }

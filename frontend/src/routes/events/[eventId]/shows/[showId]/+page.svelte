@@ -56,10 +56,12 @@
                 {data.show.balconySeatPrice != null ? `₹${data.show.balconySeatPrice}` : 'TBA'}
             </p>
         </div>
-        <div class="bg-[var(--color-surface)] border border-[var(--color-border)] p-4">
-            <p class="text-[10px] uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Available</p>
-            <p class="font-['Cormorant_Garamond'] text-xl text-[var(--color-text)]">{availableCount}</p>
-        </div>
+        {#if isLoggedIn}
+            <div class="bg-[var(--color-surface)] border border-[var(--color-border)] p-4">
+                <p class="text-[10px] uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Available</p>
+                <p class="font-['Cormorant_Garamond'] text-xl text-[var(--color-text)]">{availableCount}</p>
+            </div>
+        {/if}
     </div>
 
     <!-- Book CTA -->
@@ -79,14 +81,21 @@
         </div>
     {/if}
 
-    <!-- Seat map -->
-    <div class="flex items-center gap-4 mb-6">
-        <div class="flex-1 h-px bg-[var(--color-border)]"></div>
-        <span class="text-[10px] text-[var(--color-gold-dim)] uppercase tracking-widest">Seat Map</span>
-        <div class="flex-1 h-px bg-[var(--color-border)]"></div>
-    </div>
+    {#if isLoggedIn}
+        <!-- Seat map -->
+        <div class="flex items-center gap-4 mb-6">
+            <div class="flex-1 h-px bg-[var(--color-border)]"></div>
+            <span class="text-[10px] text-[var(--color-gold-dim)] uppercase tracking-widest">Seat Map</span>
+            <div class="flex-1 h-px bg-[var(--color-border)]"></div>
+        </div>
 
-    <div class="bg-[var(--color-surface)] border border-[var(--color-border)] p-6">
-        <SeatGrid seats={data.seats} mode="view" />
-    </div>
+        <div class="bg-[var(--color-surface)] border border-[var(--color-border)] p-6">
+            <SeatGrid seats={data.seats} mode="view" />
+        </div>
+    {:else}
+        <div class="bg-[var(--color-surface)] border border-[var(--color-border)] p-6 text-center">
+            <p class="font-['Cormorant_Garamond'] text-2xl text-[var(--color-text)]">Sign in to view seat availability</p>
+            <p class="text-sm text-[var(--color-text-muted)] mt-2">Show details are public, but seat maps and booking remain available only after sign-in.</p>
+        </div>
+    {/if}
 </div>

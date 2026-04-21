@@ -364,6 +364,18 @@ class ShowManagementImplTest {
         }
 
         @Test
+        @DisplayName("getPublicShowByID - Returns show without authentication")
+        void getPublicShowById_AnonymousUser_ReturnsShow() {
+            when(showPersistence.getShowByID(showId)).thenReturn(Optional.of(sampleShow()));
+
+            Optional<Show> result = showManagement.getPublicShowByID(showId);
+
+            assertTrue(result.isPresent());
+            assertEquals(showId, result.get().getId());
+            verify(userPersistence, never()).getUserById(any());
+        }
+
+        @Test
         @DisplayName("getShowsByEvent - Returns shows for authenticated user")
         void getShowsByEvent_AuthenticatedUser_ReturnsShows() {
             when(userPersistence.getUserById(spectatorId)).thenReturn(Optional.of(spectatorUser));
@@ -373,6 +385,29 @@ class ShowManagementImplTest {
 
             assertTrue(result.isPresent());
             assertEquals(1, result.get().size());
+        }
+
+        @Test
+        @DisplayName("getPublicShowsByEvent - Returns shows without authentication")
+        void getPublicShowsByEvent_AnonymousUser_ReturnsShows() {
+            when(showPersistence.getShowsByEvent(eventId)).thenReturn(Optional.of(new ArrayList<>(List.of(sampleShow()))));
+
+            Optional<ArrayList<Show>> result = showManagement.getPublicShowsByEvent(eventId);
+
+            assertTrue(result.isPresent());
+            assertEquals(1, result.get().size());
+            verify(userPersistence, never()).getUserById(any());
+        }
+
+        @Test
+        @DisplayName("getPublicShowsByEvent - Returns empty result when event has no shows")
+        void getPublicShowsByEvent_NoShows_ReturnsEmpty() {
+            when(showPersistence.getShowsByEvent(eventId)).thenReturn(Optional.empty());
+
+            Optional<ArrayList<Show>> result = showManagement.getPublicShowsByEvent(eventId);
+
+            assertTrue(result.isEmpty());
+            verify(userPersistence, never()).getUserById(any());
         }
 
         @Test
