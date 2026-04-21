@@ -180,6 +180,29 @@ class ShowManagementImplTest {
 
             verify(showPersistence, never()).addShowToEvent(any(), any(), any(), any(), any(), any(), any(), anyDouble(), anyDouble(), anyInt(), anyInt());
         }
+
+        @Test
+        @DisplayName("addShowToEvent - Invalid schedule throws IllegalArgumentException")
+        void addShowToEvent_InvalidSchedule_ThrowsIllegalArgumentException() {
+            when(userPersistence.getUserById(showManagerId)).thenReturn(Optional.of(showManagerUser));
+            LocalDateTime start = LocalDateTime.now().plusDays(1);
+
+            assertThrows(IllegalArgumentException.class, () -> showManagement.addShowToEvent(
+                    showManagerId,
+                    eventId,
+                    "Show Name",
+                    "Description",
+                    null,
+                    start,
+                    start,
+                    100.0,
+                    200.0,
+                    100,
+                    50
+            ));
+
+            verify(showPersistence, never()).addShowToEvent(any(), any(), any(), any(), any(), any(), any(), anyDouble(), anyDouble(), anyInt(), anyInt());
+        }
     }
 
     @Nested
@@ -241,6 +264,7 @@ class ShowManagementImplTest {
         @DisplayName("updateShowEndingAt - Secretary succeeds")
         void updateShowEndingAt_Secretary_Succeeds() {
             when(userPersistence.getUserById(secretaryId)).thenReturn(Optional.of(secretaryUser));
+            when(showPersistence.getShowByID(showId)).thenReturn(Optional.of(sampleShow()));
             LocalDateTime newEnd = LocalDateTime.now().plusDays(3).plusHours(4);
 
             assertDoesNotThrow(() -> showManagement.updateShowEndingAt(secretaryId, showId, newEnd));
@@ -296,6 +320,30 @@ class ShowManagementImplTest {
             assertThrows(PermissionException.class, () -> showManagement.updateShowName(spectatorId, showId, "Blocked"));
 
             verify(showPersistence, never()).updateShowName(any(), any());
+        }
+
+        @Test
+        @DisplayName("updateShowStartingAt - Rejects schedule when new start is after existing end")
+        void updateShowStartingAt_InvalidSchedule_ThrowsIllegalArgumentException() {
+            when(userPersistence.getUserById(showManagerId)).thenReturn(Optional.of(showManagerUser));
+            when(showPersistence.getShowByID(showId)).thenReturn(Optional.of(sampleShow()));
+
+            assertThrows(IllegalArgumentException.class, () ->
+                    showManagement.updateShowStartingAt(showManagerId, showId, LocalDateTime.now().plusDays(5)));
+
+            verify(showPersistence, never()).updateShowStartingAt(any(), any());
+        }
+
+        @Test
+        @DisplayName("updateShowEndingAt - Rejects schedule when new end is before existing start")
+        void updateShowEndingAt_InvalidSchedule_ThrowsIllegalArgumentException() {
+            when(userPersistence.getUserById(secretaryId)).thenReturn(Optional.of(secretaryUser));
+            when(showPersistence.getShowByID(showId)).thenReturn(Optional.of(sampleShow()));
+
+            assertThrows(IllegalArgumentException.class, () ->
+                    showManagement.updateShowEndingAt(secretaryId, showId, LocalDateTime.now().plusDays(1)));
+
+            verify(showPersistence, never()).updateShowEndingAt(any(), any());
         }
     }
 

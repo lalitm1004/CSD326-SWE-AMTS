@@ -27,6 +27,40 @@
     let balconySeatCount = $state('');
     let loading = $state(false);
 
+    function ensureValidSchedule(start: string, end: string) {
+        if (start && end && new Date(end).getTime() <= new Date(start).getTime()) {
+            throw new Error('Show endingAt must be after startingAt');
+        }
+    }
+
+    async function saveScheduleChanges(showId: string, actorUserId: string, previousStart: string, previousEnd: string) {
+        const startChanged = !!startingAt && startingAt !== previousStart;
+        const endChanged = !!endingAt && endingAt !== previousEnd;
+
+        if (!startChanged && !endChanged) {
+            return;
+        }
+
+        if (startChanged && endChanged) {
+            if (new Date(startingAt).getTime() < new Date(previousEnd).getTime()) {
+                await updateShowStartingAt(showId, actorUserId, startingAt);
+                await updateShowEndingAt(showId, actorUserId, endingAt);
+            } else {
+                await updateShowEndingAt(showId, actorUserId, endingAt);
+                await updateShowStartingAt(showId, actorUserId, startingAt);
+            }
+            return;
+        }
+
+        if (startChanged) {
+            await updateShowStartingAt(showId, actorUserId, startingAt);
+        }
+
+        if (endChanged) {
+            await updateShowEndingAt(showId, actorUserId, endingAt);
+        }
+    }
+
     $effect(() => {
         name = show?.name ?? '';
         description = show?.description ?? '';
@@ -44,20 +78,23 @@
         loading = true;
         try {
             if (show) {
-                // Edit: fire changed patches
+                const previousStart = show.startingAt?.slice(0, 16) ?? '';
+                const previousEnd = show.endingAt?.slice(0, 16) ?? '';
+                ensureValidSchedule(startingAt || previousStart, endingAt || previousEnd);
+
                 const uid = $UserStore!.id;
                 await Promise.all([
                     name !== show.name ? updateShowName(show.id, name, uid) : null,
                     description !== (show.description ?? '') ? updateShowDescription(show.id, description, uid) : null,
                     (ordinarySeatPrice || balconySeatPrice) ? updateShowSeatPrices(show.id, uid, Number(ordinarySeatPrice), Number(balconySeatPrice)) : null,
-                    (ordinarySeatCount || balconySeatCount) ? updateShowSeatCounts(show.id, uid, Number(ordinarySeatCount), Number(balconySeatCount)) : null,
-                    startingAt ? updateShowStartingAt(show.id, uid, startingAt) : null,
-                    endingAt ? updateShowEndingAt(show.id, uid, endingAt) : null,
+                    (ordinarySeatCount || balconySeatCount) ? updateShowSeatCounts(show.id, uid, Number(ordinarySeatCount), Number(balconySeatCount)) : null
                 ].filter(Boolean));
+                await saveScheduleChanges(show.id, uid, previousStart, previousEnd);
                 toastStore.add('success', 'Show updated.');
                 await invalidateAll();
                 onSaved?.();
             } else {
+                ensureValidSchedule(startingAt, endingAt);
                 await createShow({
                     eventId,
                     creatorUserId: $UserStore!.id,
@@ -89,8 +126,8 @@
         <Input label="Thumbnail URL" bind:value={thumbnailUrl} placeholder="https://..." />
     {/if}
     <div class="grid grid-cols-2 gap-4">
-        <Input label="Starts At" type="datetime-local" bind:value={startingAt} />
-        <Input label="Ends At" type="datetime-local" bind:value={endingAt} />
+        <Input label="Starts At" type="datetime-local" bind:value={startingAt} required />
+        <Input label="Ends At" type="datetime-local" bind:value={endingAt} required />
     </div>
     <div class="grid grid-cols-2 gap-4">
         <Input label="Ordinary Price (₹)" type="number" bind:value={ordinarySeatPrice} placeholder="500" />
