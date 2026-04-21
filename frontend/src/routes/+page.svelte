@@ -1,6 +1,8 @@
 <script lang="ts">
     import PublicNav from '$lib/components/layout/PublicNav.svelte';
     import EventGrid from '$lib/components/events/EventGrid.svelte';
+    import HomeFaq from '$lib/components/home/HomeFaq.svelte';
+    import { homeFaq } from '$lib/content/homeFaq';
     import { getAllEvents } from '$lib/services/event.service';
     import type { EventDto } from '$lib/types/api/event.types';
     import { onMount } from 'svelte';
@@ -104,3 +106,14 @@
         {/if}
     {/if}
 </section>
+
+<!-- FAQ section -->
+<div class="max-w-7xl mx-auto px-6">
+    <div class="flex items-center gap-4">
+        <div class="flex-1 h-px bg-[var(--color-border)]"></div>
+        <span class="text-[10px] text-[var(--color-gold-dim)] uppercase tracking-[0.3em]">FAQ</span>
+        <div class="flex-1 h-px bg-[var(--color-border)]"></div>
+    </div>
+</div>
+
+<HomeFaq categories={homeFaq} />

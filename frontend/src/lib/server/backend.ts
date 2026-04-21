@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/public';
+import { error } from '@sveltejs/kit';
 import { z } from 'zod';
 import { EventDtoSchema, ShowDtoSchema, type EventDto, type ShowDto } from '$lib/types/api/event.types';
 import { UserDtoSchema, type UserDto } from '$lib/types/api/user.types';
@@ -22,10 +23,14 @@ async function backendFetch(locals: Locals, path: string, init?: RequestInit): P
     });
 }
 
+function throwNotFound(status: number): never {
+    error(404, `Page not found (${status})`);
+}
+
 export async function backendJson<T>(locals: Locals, path: string, init?: RequestInit): Promise<T> {
     const res = await backendFetch(locals, path, init);
     if (!res.ok) {
-        throw new Error(`Backend request failed: ${res.status}`);
+        throwNotFound(res.status);
     }
 
     return res.json() as Promise<T>;
@@ -35,7 +40,7 @@ export async function backendJsonOrNull<T>(locals: Locals, path: string, init?: 
     const res = await backendFetch(locals, path, init);
     if (res.status === 404) return null;
     if (!res.ok) {
-        throw new Error(`Backend request failed: ${res.status}`);
+        throwNotFound(res.status);
     }
 
     return res.json() as Promise<T>;
