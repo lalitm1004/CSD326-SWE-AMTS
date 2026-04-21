@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import static org.amts.jooq.Tables.SEAT;
 import static org.amts.jooq.Tables.SHOW;
+import static org.amts.jooq.Tables.TICKET;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("ShowPersistenceImpl Tests")
@@ -124,19 +125,39 @@ class ShowPersistenceImplTest {
     void getSeatsByShow_ReturnsList() {
         MockDataProvider provider = ctx -> {
             DSLContext dsl = DSL.using(SQLDialect.POSTGRES);
-            var result = dsl.newResult(SEAT.ID, SEAT.NUMBER, SEAT.TYPE, SEAT.DESIGNATION);
-            var record = dsl.newRecord(SEAT.ID, SEAT.NUMBER, SEAT.TYPE, SEAT.DESIGNATION);
-            record.values(UUID.randomUUID(), "A1", Seattypeenum.ORDINARY, Seatdesignationenum.ORDINARY);
-            result.add(record);
+            var activeTicketId = DSL.field("active_ticket_id", TICKET.ID.getDataType());
+            var result = dsl.newResult(SEAT.ID, SEAT.NUMBER, SEAT.TYPE, SEAT.DESIGNATION, activeTicketId);
+
+            var availableSeat = dsl.newRecord(SEAT.ID, SEAT.NUMBER, SEAT.TYPE, SEAT.DESIGNATION, activeTicketId);
+            availableSeat.set(SEAT.ID, UUID.randomUUID());
+            availableSeat.set(SEAT.NUMBER, "A1");
+            availableSeat.set(SEAT.TYPE, Seattypeenum.ORDINARY);
+            availableSeat.set(SEAT.DESIGNATION, Seatdesignationenum.ORDINARY);
+            availableSeat.set(activeTicketId, null);
+            result.add(availableSeat);
+
+            var bookedSeat = dsl.newRecord(SEAT.ID, SEAT.NUMBER, SEAT.TYPE, SEAT.DESIGNATION, activeTicketId);
+            bookedSeat.set(SEAT.ID, UUID.randomUUID());
+            bookedSeat.set(SEAT.NUMBER, "A2");
+            bookedSeat.set(SEAT.TYPE, Seattypeenum.BALCONY);
+            bookedSeat.set(SEAT.DESIGNATION, Seatdesignationenum.VIP);
+            bookedSeat.set(activeTicketId, UUID.randomUUID());
+            result.add(bookedSeat);
+
             return new MockResult[]{new MockResult(1, result)};
         };
 
         ShowPersistenceImpl persistence = createPersistence(provider);
         List<Seat> result = persistence.getSeatsByShow(showId);
 
-        assertEquals(1, result.size());
+        assertEquals(2, result.size());
         assertEquals("A1", result.get(0).getNumber());
         assertEquals(SeatType.ORDINARY, result.get(0).getType());
+        assertTrue(result.get(0).isAvailable());
+        assertEquals("A2", result.get(1).getNumber());
+        assertEquals(SeatType.BALCONY, result.get(1).getType());
+        assertEquals(SeatDesignation.VIP, result.get(1).getDesignation());
+        assertFalse(result.get(1).isAvailable());
     }
 
     @Test
