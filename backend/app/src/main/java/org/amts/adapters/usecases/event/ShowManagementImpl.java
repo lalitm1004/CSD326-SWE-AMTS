@@ -3,6 +3,7 @@ package org.amts.adapters.usecases.event;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,6 +48,7 @@ public class ShowManagementImpl implements ShowManagementUseCase {
             Role.AUDITORIUM_SECRETARY,
             Role.SHOW_MANAGER
         );
+        validateShowSchedule(startingAt, endingAt);
         showPersistence.addShowToEvent(
             createdByUserId,
             eventId,
@@ -114,6 +116,8 @@ public class ShowManagementImpl implements ShowManagementUseCase {
             Role.AUDITORIUM_SECRETARY,
             Role.SHOW_MANAGER
         );
+        showPersistence.getShowByID(showId)
+            .ifPresent(show -> validateShowSchedule(newStartingAt, show.getEndingAt()));
         showPersistence.updateShowStartingAt(showId, newStartingAt);
     }
 
@@ -125,6 +129,8 @@ public class ShowManagementImpl implements ShowManagementUseCase {
             Role.AUDITORIUM_SECRETARY,
             Role.SHOW_MANAGER
         );
+        showPersistence.getShowByID(showId)
+            .ifPresent(show -> validateShowSchedule(show.getStartingAt(), newEndingAt));
         showPersistence.updateShowEndingAt(showId, newEndingAt);
     }
 
@@ -194,5 +200,13 @@ public class ShowManagementImpl implements ShowManagementUseCase {
     public List<Seat> getSeatsByShow(UUID userId, UUID showId) {
         AuthorizationHelper.getAuthorizedUser(userId, userPersistence);
         return showPersistence.getSeatsByShow(showId);
+    }
+
+    private void validateShowSchedule(LocalDateTime startingAt, LocalDateTime endingAt) {
+        Objects.requireNonNull(startingAt, "Show startingAt must not be null");
+        Objects.requireNonNull(endingAt, "Show endingAt must not be null");
+        if (!endingAt.isAfter(startingAt)) {
+            throw new IllegalArgumentException("Show endingAt must be after startingAt");
+        }
     }
 }
