@@ -3,7 +3,17 @@
     import Textarea from '$lib/components/ui/Textarea.svelte';
     import Button from '$lib/components/ui/Button.svelte';
     import { toastStore } from '$lib/stores/toast.store';
-    import { createShow, updateShowName, updateShowDescription, updateShowSeatPrices, updateShowSeatCounts, updateShowStartingAt, updateShowEndingAt } from '$lib/services/show.service';
+    import {
+        createShow,
+        DEFAULT_BALCONY_SEAT_PRICE,
+        DEFAULT_ORDINARY_SEAT_PRICE,
+        updateShowDescription,
+        updateShowEndingAt,
+        updateShowName,
+        updateShowSeatCounts,
+        updateShowSeatPrices,
+        updateShowStartingAt
+    } from '$lib/services/show.service';
     import { UserStore } from '$lib/stores/SupaStore';
     import type { ShowDto } from '$lib/types/api/event.types';
     import { goto } from '$app/navigation';
@@ -130,8 +140,8 @@
         <Input label="Ends At" type="datetime-local" bind:value={endingAt} required />
     </div>
     <div class="grid grid-cols-2 gap-4">
-        <Input label="Ordinary Price (₹)" type="number" bind:value={ordinarySeatPrice} placeholder="500" />
-        <Input label="Balcony Price (₹)" type="number" bind:value={balconySeatPrice} placeholder="800" />
+        <Input label="Ordinary Price (₹)" type="number" bind:value={ordinarySeatPrice} placeholder={String(DEFAULT_ORDINARY_SEAT_PRICE)} />
+        <Input label="Balcony Price (₹)" type="number" bind:value={balconySeatPrice} placeholder={String(DEFAULT_BALCONY_SEAT_PRICE)} />
     </div>
     <div class="grid grid-cols-2 gap-4">
         <Input label="Ordinary Seat Count" type="number" bind:value={ordinarySeatCount} placeholder="600" />

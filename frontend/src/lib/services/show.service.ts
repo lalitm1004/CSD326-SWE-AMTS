@@ -5,6 +5,9 @@ import { z } from 'zod';
 import { ShowDtoSchema, type ShowDto } from '$lib/types/api/event.types';
 import { SeatDtoSchema, type SeatDto } from '$lib/types/api/seat.types';
 
+export const DEFAULT_ORDINARY_SEAT_PRICE = 500;
+export const DEFAULT_BALCONY_SEAT_PRICE = 800;
+
 const jsonPost = (route: string, body: unknown) =>
     fetchWithAuth(route, {
         method: 'POST',
@@ -64,8 +67,8 @@ export const createShow = async (data: {
         thumbnailUrl: data.thumbnailUrl,
         startingAt: data.startingAt,
         endingAt: data.endingAt,
-        ordinarySeatPrice: data.ordinarySeatPrice ?? 0,
-        balconySeatPrice: data.balconySeatPrice ?? 0,
+        ordinarySeatPrice: data.ordinarySeatPrice ?? DEFAULT_ORDINARY_SEAT_PRICE,
+        balconySeatPrice: data.balconySeatPrice ?? DEFAULT_BALCONY_SEAT_PRICE,
         numOrdinarySeats: data.ordinarySeatCount ?? 0,
         numBalconySeats: data.balconySeatCount ?? 0
     });
